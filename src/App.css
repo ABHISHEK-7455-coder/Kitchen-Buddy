@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --orange: #F97316;
+  --orange-light: #FFF0E6;
+  --orange-hover: #EA6A0A;
+  --orange-border: #FFD9B8;
+  --bg: #F8F5F0;
+  --card: #FFFFFF;
+  --text: #1A1A1A;
+  --muted: #888888;
+  --border: #EEEEEE;
+  --red: #EF4444;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app {
+  padding-bottom: 90px;
+  width: 90%;
+  margin: auto;
+}
