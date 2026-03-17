@@ -447,6 +447,8 @@ function Toast(props) {
 
 // ─── Main Feed ────────────────────────────────────────────────────────────────
 export default function AIFoodFeed(props) {
+  console.log("GROQ KEY:", import.meta.env.VITE_GROQ_API_KEY); // ← add this
+  // ... rest of your code
   var addMeal = props.addMeal;
   var mealPlans = props.mealPlans || {};
 
