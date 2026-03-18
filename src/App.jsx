@@ -8,6 +8,7 @@ import CalendarView from "./pages/CalendarView";
 import MealLog from "./components/MealLog";
 import Onboarding from "./pages/Onboarding";
 import AIFoodFeed from "./pages/AIFoodFeed";
+import IngredientSuggest from "./pages/IngredientSuggest";
 
 function App() {
   // ── Onboarding ────────────────────────────────────────────────────────────
@@ -75,6 +76,7 @@ function App() {
           }
         />
 
+        <Route path="/ingredients" element={<><Navbar /><IngredientSuggest addMeal={addMeal} mealPlans={mealPlans} /></>} />
         <Route path="/pantry" element={<><Navbar /><PantryInventory /></>} />
         <Route path="/meal-log" element={<><Navbar /><MealLog /></>} />
         <Route path="*" element={<Navigate to="/" />} />

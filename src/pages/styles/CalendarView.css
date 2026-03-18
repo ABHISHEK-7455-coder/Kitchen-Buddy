@@ -852,3 +852,157 @@ body {
     justify-content: flex-end;
     gap: 10px;
 }
+
+/* ══════════════════════════════════════════════
+   CALENDARVIEW — MOBILE RESPONSIVE (enhanced)
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    /* Hide sidebar on mobile — use slide-in instead */
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+        z-index: 300;
+        transition: left 0.3s ease;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, .15);
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    /* Overlay when sidebar open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .4);
+        z-index: 299;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    /* Full width main */
+    .layout {
+        display: block;
+    }
+
+    .main {
+        padding: 12px;
+    }
+
+    /* Calendar header stacks */
+    .calendar__header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .calendar__title {
+        font-size: 16px;
+    }
+
+    .calendar__controls {
+        gap: 6px;
+    }
+
+    .nav-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .today-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* Smaller day headers */
+    .calendar__day-headers {
+        gap: 2px;
+        padding: 0 4px;
+    }
+
+    .day-header {
+        font-size: 10px;
+        padding: 6px 0;
+    }
+
+    /* Calendar grid compact */
+    .calendar__grid {
+        gap: 3px;
+        padding: 4px;
+    }
+
+    .cal-day {
+        min-height: 70px;
+        padding: 4px 3px;
+        border-radius: 6px;
+    }
+
+    .day-num {
+        font-size: 11px;
+        margin-bottom: 3px;
+    }
+
+    .meal-tag {
+        font-size: 8px;
+        padding: 2px 4px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+    }
+
+    .meal-icon {
+        display: none;
+    }
+
+    .add-slot {
+        font-size: 8px;
+        padding: 2px 4px;
+    }
+
+    /* Modal full width */
+    .meal-modal {
+        width: calc(100vw - 32px);
+        max-width: 100%;
+        border-radius: 16px;
+    }
+
+    .meal-modal h3 {
+        font-size: 16px;
+    }
+
+    .meal-modal input {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main {
+        padding: 8px;
+    }
+
+    .cal-day {
+        min-height: 55px;
+    }
+
+    .calendar__grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
+
+    .day-num {
+        font-size: 10px;
+    }
+
+    /* Hide meal tags on very small screens, just show dots */
+    .meal-tag {
+        font-size: 7px;
+        padding: 1px 3px;
+    }
+}

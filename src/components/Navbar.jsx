@@ -1,26 +1,5 @@
 import '../pages/styles/Navbar.css';
-// import '../src/pages/styles/Navbar.css'
-import { NavLink } from "react-router-dom";
-
-const SearchIcon = () => (
-    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.35-4.35" />
-    </svg>
-);
-
-const BellIcon = () => (
-    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-);
-
-const SettingsIcon = () => (
-    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="3" />
-    </svg>
-);
+import { NavLink, useLocation } from "react-router-dom";
 
 const LogoIcon = () => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -28,54 +7,64 @@ const LogoIcon = () => (
     </svg>
 );
 
+// ── Mobile Bottom Navigation ──────────────────────────────────────────────────
+function MobileBottomNav() {
+    const location = useLocation();
+
+    const items = [
+        { to: "/", icon: "fa-house", label: "Home" },
+        { to: "/ai", icon: "fa-wand-magic-sparkles", label: "AI Feed" },
+        { to: "/ingredients", icon: "fa-seedling", label: "Ingredients" },
+        { to: "/planner", icon: "fa-calendar-days", label: "Planner" },
+        { to: "/pantry", icon: "fa-box", label: "Pantry" },
+    ];
+
+    return (
+        <nav className="mobile-bottom-nav">
+            {items.map((item) => {
+                const isActive = location.pathname === item.to;
+                return (
+                    <NavLink
+                        key={item.to}
+                        to={item.to}
+                        className={"mobile-nav-item" + (isActive ? " active" : "")}
+                    >
+                        <i className={"fa-solid " + item.icon} aria-hidden="true" />
+                        <span>{item.label}</span>
+                    </NavLink>
+                );
+            })}
+        </nav>
+    );
+}
+
+// ── Desktop Navbar ────────────────────────────────────────────────────────────
 export default function Navbar() {
     return (
-        <nav className="navbar">
+        <>
+            <nav className="navbar">
+                <div className="navbar__logo">
+                    <span className="navbar__logo-icon"><LogoIcon /></span>
+                    Kitchen Buddy
+                </div>
 
-            <div className="navbar_logo">
-                <NavLink to="/" className="navbar__logo-link">
-                    <span className="navbar__logo-icon"><LogoIcon />Kitchen Buddy</span>
-                    
-                </NavLink>
-            </div>
+                {/* Desktop links — hidden on mobile via CSS */}
+                <div className="navbar__links">
+                    <NavLink to="/" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Home</NavLink>
+                    <NavLink to="/ai" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>AI</NavLink>
+                    <NavLink to="/ingredients" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Ingredients</NavLink>
+                    <NavLink to="/meal-log" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Meal Log</NavLink>
+                    <NavLink to="/planner" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Planner</NavLink>
+                    <NavLink to="/pantry" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Pantry</NavLink>
+                </div>
 
-            {/* <div className="navbar__search">
-                <SearchIcon />
-                <input
-                    type="text"
-                    placeholder="Search recipes, ingredients..."
-                    className="navbar__search-input"
-                />
-            </div> */}
+                <div className="navbar__icons">
+                    <div className="navbar__avatar">👨‍🍳</div>
+                </div>
+            </nav>
 
-            <div className="navbar__links">
-
-                <NavLink to="/" className="navbar__link">
-                    Home
-                </NavLink>
-
-                <NavLink to="/ai" className="navbar__link">
-                    AI
-                </NavLink>
-                {/* <NavLink to="/meal-log" className="navbar__link">
-                    Meal Log
-                </NavLink> */}
-
-                <NavLink to="/planner" className="navbar__link">
-                    Planner
-                </NavLink>
-
-                <NavLink to="/pantry" className="navbar__link">
-                    Pantry
-                </NavLink>
-            </div>
-
-            <div className="navbar__icons">
-                {/* <div className="navbar__icon-btn"><BellIcon /></div>
-                <div className="navbar__icon-btn"><SettingsIcon /></div> */}
-                <div className="navbar__avatar">👨‍🍳</div>
-            </div>
-
-        </nav>
+            {/* Mobile bottom nav — shown only on mobile via CSS */}
+            <MobileBottomNav />
+        </>
     );
 }

@@ -1428,3 +1428,250 @@ input {
     transform: translateX(-50%) translateY(0);
   }
 }
+
+/* ══════════════════════════════════════════════
+   AIFOODFEED — MOBILE RESPONSIVE (enhanced)
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Hero section */
+  .feed-hero {
+    padding: 24px 0 20px;
+  }
+
+  .feed-hero-inner {
+    padding: 0 16px;
+    gap: 16px;
+  }
+
+  .feed-hero-title {
+    font-size: 26px;
+  }
+
+  .feed-hero-sub {
+    font-size: 13px;
+  }
+
+  /* Search bar */
+  .feed-search-bar {
+    padding: 5px 5px 5px 14px;
+    border-radius: 12px;
+  }
+
+  .feed-search-input {
+    font-size: 14px;
+  }
+
+  .search-submit {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+  }
+
+  /* Suggestion chips — horizontal scroll */
+  .suggestion-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    gap: 6px;
+  }
+
+  .suggestion-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .suggestion-chip {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: 7px 12px;
+  }
+
+  /* Filter bar */
+  .feed-filter-inner {
+    padding: 10px 16px;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .filter-tabs {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .filter-tab {
+    font-size: 12px;
+    padding: 7px 12px;
+    white-space: nowrap;
+  }
+
+  .refresh-btn {
+    font-size: 12px;
+    padding: 7px 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Masonry — 2 columns on mobile */
+  .masonry-grid {
+    columns: 2 140px;
+    column-gap: 10px;
+  }
+
+  .feed-grid-wrap {
+    padding: 16px 12px;
+  }
+
+  /* Cards */
+  .dish-card {
+    margin-bottom: 10px;
+    border-radius: 14px;
+  }
+
+  .dish-card-name {
+    font-size: 14px;
+  }
+
+  .dish-card-meta span {
+    font-size: 10px;
+  }
+
+  .dish-badge.sm {
+    font-size: 9px;
+    padding: 3px 7px;
+  }
+
+  /* Add row always visible on mobile (no hover) */
+  .card-add-row {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    font-size: 11px;
+    padding: 7px;
+  }
+
+  /* + button always visible on mobile */
+  .card-add-btn {
+    opacity: 1 !important;
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+
+  /* Mic button */
+  .mic-container {
+    bottom: 76px;
+    right: 16px;
+  }
+
+  .mic-btn {
+    width: 54px;
+    height: 54px;
+  }
+
+  .mic-icon {
+    font-size: 18px;
+  }
+
+  .mic-label {
+    font-size: 10px;
+  }
+
+  /* Modal — bottom sheet full width */
+  .modal-sheet {
+    max-height: 95vh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .modal-img-wrap {
+    height: 220px;
+  }
+
+  .modal-title {
+    font-size: 22px;
+  }
+
+  .modal-body {
+    padding: 0 16px 24px;
+  }
+
+  .modal-nutrition {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .nutr-item {
+    padding: 10px 6px;
+  }
+
+  .modal-actions {
+    gap: 8px;
+  }
+
+  .btn-add-plan {
+    font-size: 14px;
+    padding: 13px;
+  }
+
+  /* Add to Plan modal */
+  .atp-modal {
+    border-radius: 20px;
+    margin: 16px;
+  }
+
+  .atp-header {
+    padding: 16px 16px 0;
+  }
+
+  .atp-section {
+    padding: 14px 16px 0;
+  }
+
+  .atp-footer {
+    padding: 14px 16px 16px;
+  }
+
+  .atp-confirm {
+    font-size: 13px;
+    padding: 11px 14px;
+  }
+
+  .atp-day-btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .atp-meal-btn {
+    padding: 10px 6px;
+  }
+
+  .atp-meal-key {
+    font-size: 11px;
+  }
+
+  /* Toast */
+  .atp-toast {
+    bottom: 76px;
+    font-size: 13px;
+    padding: 10px 18px;
+    max-width: calc(100vw - 32px);
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .feed-hero-title {
+    font-size: 22px;
+  }
+
+  .masonry-grid {
+    columns: 2 120px;
+    column-gap: 8px;
+  }
+
+  .modal-nutrition {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

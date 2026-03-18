@@ -12,29 +12,22 @@
     box-shadow: 0 1px 6px rgba(0, 0, 0, .04);
 }
 
-.navbar_logo {
+.navbar__logo {
     display: flex;
     align-items: center;
     gap: 8px;
     font-weight: 700;
-    font-size: 32px;
-    color: rgb(0, 0, 0,);
+    font-size: 26px;
+    color: var(--text);
     text-decoration: none;
     flex-shrink: 0;
     cursor: pointer;
-}
-
-.navbar__logo-link {
-    text-decoration: none;
-    display: flex;
-    align-items: center;
 }
 
 .navbar__logo-icon {
     color: var(--orange);
     display: flex;
 }
-
 
 /* .navbar__search {
     flex: 1;
@@ -52,21 +45,21 @@
     cursor: text;
 } */
 
-.navbar__search{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:#f5f5f5;
-    padding:6px 10px;
-    border-radius:8px;
+.navbar__search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f5f5f5;
+    padding: 6px 10px;
+    border-radius: 8px;
 }
 
-.navbar__search-input{
-    border:none;
-    outline:none;
-    background:transparent;
-    font-size:14px;
-    width:200px;
+.navbar__search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    width: 200px;
     color: rgb(99, 98, 98);
 }
 
@@ -80,7 +73,7 @@
 .navbar__link {
     text-decoration: none;
     color: var(--muted);
-    font-size: 20px;
+    font-size: 14.5px;
     font-weight: 600;
     cursor: pointer;
     transition: color 0.2s;
@@ -136,4 +129,102 @@
     font-size: 20px;
     cursor: pointer;
     border: 2px solid var(--border);
+}
+
+/* ══════════════════════════════════════════════
+   NAVBAR — MOBILE RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 16px;
+        height: 56px;
+        gap: 10px;
+    }
+
+    .navbar__logo {
+        font-size: 18px;
+    }
+
+    .navbar__logo-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Hide all nav links on mobile */
+    .navbar__links {
+        display: none;
+    }
+
+    .navbar__search {
+        display: none;
+    }
+
+    .navbar__icons {
+        margin-left: auto;
+    }
+
+    .navbar__avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 15px;
+    }
+}
+
+/* ── Mobile Bottom Navigation Bar ──────────────────────────── */
+/* Add <MobileNav /> component to your layout */
+.mobile-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 62px;
+        background: #fff;
+        border-top: 1px solid #ece6de;
+        z-index: 999;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, .08);
+    }
+
+    .mobile-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #aaa;
+        text-decoration: none;
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-family: 'Nunito', sans-serif;
+        transition: color 0.2s;
+        padding: 6px 0;
+    }
+
+    .mobile-nav-item i,
+    .mobile-nav-item svg {
+        font-size: 19px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .mobile-nav-item span {
+        font-size: 10px;
+    }
+
+    .mobile-nav-item.active {
+        color: #e8622a;
+    }
+
+    .mobile-nav-item:hover {
+        color: #e8622a;
+    }
 }
