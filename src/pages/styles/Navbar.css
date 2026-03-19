@@ -228,3 +228,7 @@
         color: #e8622a;
     }
 }
+
+@media (max-width: 480px) {
+    .navbar{display: none;}
+}

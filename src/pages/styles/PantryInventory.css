@@ -822,7 +822,7 @@ body {
     }
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     .items-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -840,7 +840,7 @@ body {
     .items-grid {
         grid-template-columns: 1fr;
     }
-}
+} */
 
 /* ══════════════════════════════════════════════
    PANTRY INVENTORY — MOBILE RESPONSIVE (enhanced)
@@ -852,6 +852,7 @@ body {
         grid-template-columns: 1fr;
         padding: 12px;
         gap: 16px;
+        width: 100%;
     }
 
     /* Header */
@@ -934,7 +935,7 @@ body {
 
 @media (max-width: 480px) {
     .items-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr ;
     }
 
     .item-card {
@@ -943,5 +944,12 @@ body {
 
     .main-layout {
         padding: 8px;
+        width: 100%;
+    }
+
+    .header-actions {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
     }
 }

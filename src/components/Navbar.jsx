@@ -53,7 +53,7 @@ export default function Navbar() {
                     <NavLink to="/" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Home</NavLink>
                     <NavLink to="/ai" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>AI</NavLink>
                     <NavLink to="/ingredients" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Ingredients</NavLink>
-                    <NavLink to="/meal-log" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Meal Log</NavLink>
+                    {/* <NavLink to="/meal-log" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Meal Log</NavLink> */}
                     <NavLink to="/planner" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Planner</NavLink>
                     <NavLink to="/pantry" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Pantry</NavLink>
                 </div>
