@@ -1,3 +1,4 @@
+/* ===== SECTION HEADER ===== */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -18,9 +19,13 @@
     background: none;
     border: none;
     font-family: 'Nunito', sans-serif;
-    border: none;
 }
 
+.view-week-btn:hover {
+    text-decoration: underline;
+}
+
+/* ===== MEAL CARDS GRID ===== */
 .meal-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -28,137 +33,430 @@
     margin-bottom: 20px;
 }
 
-.meal-card {
+/* ===== SINGLE CARD ===== */
+.mp-card {
     background: #fff;
     border-radius: 16px;
     padding: 14px;
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border, #eee);
     cursor: pointer;
-    transition: box-shadow 0.2s, transform 0.15s;
+    transition: box-shadow 0.2s, transform 0.15s, border-color 0.15s;
+    position: relative;
+    overflow: hidden;
 }
 
-.meal-card:hover {
+.mp-card:hover:not(.editing) {
     box-shadow: 0 4px 16px rgba(0, 0, 0, .10);
     transform: translateY(-2px);
 }
 
-.meal-card__label {
+.mp-card.editing {
+    border-color: #e8622a;
+    box-shadow: 0 0 0 3px rgba(232, 98, 42, 0.12);
+    cursor: default;
+    transform: none;
+}
+
+/* Edit hint that appears on hover */
+.mp-edit-hint {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    font-size: 10px;
+    color: #bbb;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+}
+
+.mp-card:hover:not(.editing) .mp-edit-hint {
+    opacity: 1;
+}
+
+/* ===== CARD LABEL ===== */
+.mp-card-label {
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--muted, #aaa);
     margin-bottom: 10px;
 }
 
-.meal-card__thumb {
-    width: 100%;
-    height: 90px;
+/* ===== THUMBNAIL / IMAGE ===== */
+.mp-card-thumb {
+    width: 98%;
+    height: 150px;
     border-radius: 10px;
-    background: var(--bg);
+    background: var(--bg, #f5f0eb);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
     margin-bottom: 12px;
+    overflow: hidden;
+    position: relative;
 }
 
-.meal-card__name {
-    font-size: 14px;
-    font-weight: 800;
-    margin-bottom: 4px;
+.mp-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
-.meal-card__info {
-    font-size: 12px;
-    color: var(--muted);
+.mp-card-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.38);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.mp-card-thumb:hover .mp-card-img-overlay {
+    opacity: 1;
+}
+
+.mp-card-img-overlay span {
+    color: #fff;
+    font-size: 13px;
     font-weight: 600;
 }
 
-/* NUTRITION CARD */
-.nutrition-card {
-    background: var(--orange);
-    border-radius: 18px;
-    padding: 24px 28px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.nutrition-card__title {
-    font-size: 17px;
-    font-weight: 800;
-    margin-bottom: 5px;
-}
-
-.nutrition-card__sub {
-    font-size: 13px;
-    opacity: 0.9;
-}
-
-.circle-progress {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    background: conic-gradient(rgba(255, 255, 255, 0.9) 65%, rgba(255, 255, 255, 0.25) 65%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.circle-progress__inner {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--orange);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 900;
-    color: #fff;
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 350px;
+.mp-card-emoji-wrap {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
 }
 
-.modal input,
-.modal textarea {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+.mp-card-emoji {
+    font-size: 36px;
 }
 
-.modal-buttons {
+.mp-add-photo-hint {
+    font-size: 11px;
+    color: #bbb;
+    font-weight: 500;
+}
+
+.mp-card-emoji-wrap:hover .mp-add-photo-hint {
+    color: #e8622a;
+}
+
+/* ===== CARD TEXT ===== */
+.mp-card-name {
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #1a1a1a;
+}
+
+.mp-card-name.mp-placeholder {
+    color: #ccc;
+    font-weight: 500;
+}
+
+.mp-card-info {
+    font-size: 12px;
+    color: var(--muted, #aaa);
+    font-weight: 600;
+}
+
+.mp-placeholder {
+    color: #ccc;
+}
+
+/* ===== EDIT INPUTS ===== */
+.mp-input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    background: #fafafa;
+    color: #1a1a1a;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+
+.mp-input:focus {
+    border-color: #e8622a;
+    background: #fff;
+}
+
+.mp-input::placeholder {
+    color: #ccc;
+}
+
+.mp-name-input {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    margin-top: 2px;
+}
+
+.mp-inline-row {
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.mp-small-input {
+    flex: 1;
+    font-size: 12px;
+}
+
+/* Hide number spinner */
+.mp-small-input::-webkit-inner-spin-button,
+.mp-small-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+/* ===== EDIT EXTRA (instructions, notes, actions) ===== */
+.mp-edit-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    border-top: 1px solid #f0ece8;
+    padding-top: 10px;
+}
+
+.mp-textarea {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    background: #fafafa;
+    color: #555;
+    resize: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+    line-height: 1.5;
+}
+
+.mp-textarea:focus {
+    border-color: #e8622a;
+    background: #fff;
+}
+
+.mp-textarea::placeholder {
+    color: #ccc;
+}
+
+/* ===== CARD ACTIONS ===== */
+.mp-card-actions {
+    display: flex;
+    gap: 8px;
     justify-content: flex-end;
 }
 
-/* ══════════════════════════════════════════════
-   MEALPLAN — MOBILE RESPONSIVE
-══════════════════════════════════════════════ */
+.mp-btn-save {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #e8622a;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.mp-btn-save:hover {
+    background: #d4531e;
+}
+
+.mp-btn-cancel {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    background: #fff;
+    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.mp-btn-cancel:hover {
+    background: #f5f5f5;
+}
+
+/* ===== IMAGE UPLOAD MODAL ===== */
+.mp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(3px);
+}
+
+.mp-modal-box {
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px;
+    width: 340px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: mpFadeUp 0.2s ease;
+}
+
+@keyframes mpFadeUp {
+    from {
+        transform: translateY(14px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.mp-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.mp-modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #aaa;
+    line-height: 1;
+}
+
+.mp-modal-close:hover {
+    color: #555;
+}
+
+.mp-tab-row {
+    display: flex;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.mp-tab {
+    flex: 1;
+    padding: 9px 0;
+    border: none;
+    background: #fafafa;
+    color: #888;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.mp-tab.active {
+    background: #e8622a;
+    color: #fff;
+}
+
+.mp-file-zone {
+    border: 2px dashed #e0d0c8;
+    border-radius: 12px;
+    padding: 28px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: #fdf8f5;
+    transition: border-color 0.15s;
+    font-size: 13px;
+    color: #888;
+    font-weight: 500;
+}
+
+.mp-file-zone:hover {
+    border-color: #e8622a;
+}
+
+.mp-file-icon {
+    font-size: 32px;
+}
+
+.mp-file-hint {
+    font-size: 11px;
+    color: #ccc;
+}
+
+.mp-url-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mp-url-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+.mp-url-input:focus {
+    border-color: #e8622a;
+}
+
+.mp-url-input.error {
+    border-color: #e8622a;
+}
+
+.mp-url-err {
+    font-size: 12px;
+    color: #e8622a;
+}
+
+.mp-btn-primary {
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: #e8622a;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.mp-btn-primary:hover {
+    background: #d4531e;
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .section-header {
         margin-bottom: 12px;
@@ -168,72 +466,47 @@
         font-size: 17px;
     }
 
-    /* 1 column on small screens */
     .meal-cards {
         grid-template-columns: 1fr;
         gap: 10px;
     }
 
-    .meal-card {
+    .mp-card {
         padding: 14px 16px;
     }
 
-    .meal-card__thumb {
+    .mp-card-thumb {
         height: 70px;
-        font-size: 28px;
-        margin-bottom: 8px;
     }
 
-    .meal-card__name {
+    .mp-card-emoji {
+        font-size: 28px;
+    }
+
+    .mp-card-name {
         font-size: 13px;
     }
 
-    .meal-card__info {
+    .mp-card-info {
         font-size: 11px;
     }
 
-    /* Nutrition card */
-    .nutrition-card {
-        padding: 18px 20px;
-        border-radius: 14px;
-    }
-
-    .nutrition-card__title {
-        font-size: 15px;
-    }
-
-    .nutrition-card__sub {
-        font-size: 12px;
-    }
-
-    .circle-progress {
-        width: 58px;
-        height: 58px;
-    }
-
-    .circle-progress__inner {
-        width: 42px;
-        height: 42px;
-        font-size: 11px;
-    }
-
-    /* Edit modal full width */
-    .modal {
+    .mp-modal-box {
         width: calc(100vw - 32px);
-        max-width: 100%;
     }
 }
 
 @media (max-width: 480px) {
-
-    /* 2 columns for meal cards to save space */
     .meal-cards {
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
     }
 
-    .meal-card__thumb {
+    .mp-card-thumb {
         height: 60px;
+    }
+
+    .mp-card-emoji {
         font-size: 24px;
     }
 }

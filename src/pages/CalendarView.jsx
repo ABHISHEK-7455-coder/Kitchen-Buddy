@@ -134,7 +134,18 @@ export default function CalendarView({ mealPlans, addMeal }) {
                                             const meal = dayMeals?.[type];
                                             return meal?.name ? (
                                                 <button key={type} className={`meal-tag ${getMealType(type)}`} onClick={() => openMealModal(day.date, type)}>
-                                                    <span className="meal-icon">{getMealIcon(type)}</span>{meal.name}
+                                                    {/* ── synced image from MealPlan ── */}
+                                                    {meal.image
+                                                        ? <img src={meal.image} alt={meal.name} className="meal-tag__img" />
+                                                        : <span className="meal-icon">{getMealIcon(type)}</span>
+                                                    }
+                                                    <span className="meal-tag__name">{meal.name}</span>
+                                                    {/* ── extra details when available ── */}
+                                                    {(meal.time || meal.calories) && (
+                                                        <span className="meal-tag__meta">
+                                                            {meal.time}{meal.time && meal.calories ? " · " : ""}{meal.calories ? `${meal.calories} kcal` : ""}
+                                                        </span>
+                                                    )}
                                                 </button>
                                             ) : (
                                                 <button key={type} className="add-slot" onClick={() => openMealModal(day.date, type)}>+ {type}</button>

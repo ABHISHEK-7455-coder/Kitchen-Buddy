@@ -350,18 +350,179 @@ function AddToPlanModal(props) {
   );
 }
 
+
+// ─── Share Modal ──────────────────────────────────────────────────────────────
+function ShareModal(props) {
+  var dish = props.dish;
+  var onClose = props.onClose;
+
+  var copied = useState(false); var isCopied = copied[0]; var setCopied = copied[1];
+
+  useEffect(function () { document.body.style.overflow = "hidden"; return function () { document.body.style.overflow = ""; }; }, []);
+
+  if (!dish) return null;
+
+  // Build share text
+  var shareText = "🍽️ Check out this dish: " + dish.name + "\n"
+    + "🕐 " + dish.time + "  |  🔥 " + (dish.nutrition && dish.nutrition.calories || "") + "  |  " + dish.difficulty + "\n"
+    + "📝 " + (dish.description || "") + "\n"
+    + "\n🥘 Ingredients: " + (dish.ingredients ? dish.ingredients.slice(0, 5).join(", ") : "") + "\n"
+    + "\nFound on Kitchen Buddy 🍳";
+
+  var encodedText = encodeURIComponent(shareText);
+
+  var platforms = [
+    {
+      name: "WhatsApp",
+      icon: "fa-whatsapp",
+      color: "#25D366",
+      bg: "rgba(37,211,102,.12)",
+      url: "https://wa.me/?text=" + encodedText,
+    },
+    {
+      name: "Telegram",
+      icon: "fa-telegram",
+      color: "#2AABEE",
+      bg: "rgba(42,171,238,.12)",
+      url: "https://t.me/share/url?url=" + encodeURIComponent(window.location.href) + "&text=" + encodedText,
+    },
+    {
+      name: "Twitter / X",
+      icon: "fa-x-twitter",
+      color: "#000",
+      bg: "rgba(255,255,255,.08)",
+      url: "https://twitter.com/intent/tweet?text=" + encodedText,
+    },
+    {
+      name: "Instagram",
+      icon: "fa-instagram",
+      color: "#E1306C",
+      bg: "rgba(225,48,108,.12)",
+      url: null, // Instagram doesn't support direct share URLs — copy instead
+    },
+    {
+      name: "Facebook",
+      icon: "fa-facebook",
+      color: "#1877F2",
+      bg: "rgba(24,119,242,.12)",
+      url: "https://www.facebook.com/sharer/sharer.php?quote=" + encodedText,
+    },
+    {
+      name: "Email",
+      icon: "fa-envelope",
+      color: "#e8622a",
+      bg: "rgba(232,98,42,.12)",
+      url: "mailto:?subject=" + encodeURIComponent("Try this recipe: " + dish.name) + "&body=" + encodedText,
+    },
+  ];
+
+  function handleShare(platform) {
+    if (platform.url) {
+      window.open(platform.url, "_blank", "noopener,noreferrer");
+    } else {
+      // Instagram — copy text to clipboard
+      navigator.clipboard.writeText(shareText).then(function () {
+        setCopied(true);
+        setTimeout(function () { setCopied(false); }, 2500);
+      });
+    }
+  }
+
+  function handleCopyLink() {
+    navigator.clipboard.writeText(shareText).then(function () {
+      setCopied(true);
+      setTimeout(function () { setCopied(false); }, 2500);
+    });
+  }
+
+  // Use native share sheet on mobile if available
+  function handleNativeShare() {
+    if (navigator.share) {
+      navigator.share({
+        title: dish.name,
+        text: shareText,
+      }).catch(function () { });
+    }
+  }
+
+  return (
+    <div className="share-backdrop" onClick={onClose}>
+      <div className="share-modal" onClick={function (e) { e.stopPropagation(); }}>
+
+        {/* Header */}
+        <div className="share-header">
+          <div className="share-dish-preview">
+            <div className="share-dish-thumb">
+              <DishImage dish={dish} className="share-thumb-img" />
+            </div>
+            <div>
+              <p className="share-label">Share this dish</p>
+              <h3 className="share-dish-name">{dish.name}</h3>
+              <p className="share-dish-meta">
+                <Icon n="fa-clock" /> {dish.time} &nbsp;·&nbsp;
+                <Icon n="fa-fire" /> {dish.nutrition && dish.nutrition.calories}
+              </p>
+            </div>
+          </div>
+          <button className="share-close" type="button" onClick={onClose}>
+            <Icon n="fa-xmark" />
+          </button>
+        </div>
+
+        {/* Native share on mobile */}
+        {navigator.share && (
+          <button className="share-native-btn" type="button" onClick={handleNativeShare}>
+            <Icon n="fa-share-nodes" />
+            Share via your phone
+          </button>
+        )}
+
+        {/* Platform buttons */}
+        <p className="share-platforms-label">Share on</p>
+        <div className="share-platforms">
+          {platforms.map(function (p) {
+            return (
+              <button key={p.name} type="button"
+                className="share-platform-btn"
+                style={{ "--pc": p.color, "--pb": p.bg }}
+                onClick={function () { handleShare(p); }}>
+                <span className="share-platform-icon">
+                  <i className={"fa-brands " + p.icon} aria-hidden="true" />
+                </span>
+                <span className="share-platform-name">{p.name}</span>
+                {p.name === "Instagram" && <span className="share-copy-hint">Copies text</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Copy text */}
+        <div className="share-copy-row">
+          <div className="share-copy-text-preview">
+            {shareText.slice(0, 80)}...
+          </div>
+          <button type="button" className={"share-copy-btn " + (isCopied ? "copied" : "")}
+            onClick={handleCopyLink}>
+            <Icon n={isCopied ? "fa-check" : "fa-copy"} />
+            {isCopied ? "Copied!" : "Copy text"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Dish Card ────────────────────────────────────────────────────────────────
 function DishCard(props) {
   var dish = props.dish;
   var index = props.index;
   var onClick = props.onClick;
   var onAddPlan = props.onAddPlan;
+  var onShare = props.onShare;
   var h = HEIGHTS[index % HEIGHTS.length];
 
-  function handleAddClick(e) {
-    e.stopPropagation();
-    onAddPlan(dish);
-  }
+  function handleAddClick(e) { e.stopPropagation(); onAddPlan(dish); }
+  function handleShare(e) { e.stopPropagation(); onShare(dish); }
 
   return (
     <div className="dish-card" style={{ "--card-h": h + "px", animationDelay: (index * 0.06) + "s" }}
@@ -378,8 +539,14 @@ function DishCard(props) {
         </span>
       </div>
 
+      {/* + Add button top-right */}
       <button type="button" className="card-add-btn" onClick={handleAddClick} title="Add to Meal Plan">
         <Icon n="fa-plus" />
+      </button>
+
+      {/* Share button — top-right second */}
+      <button type="button" className="card-share-btn" onClick={handleShare} title="Share this dish">
+        <Icon n="fa-share-nodes" />
       </button>
 
       <div className="dish-card-bottom">
@@ -403,6 +570,7 @@ function DishModal(props) {
   var dish = props.dish;
   var onClose = props.onClose;
   var onAddPlan = props.onAddPlan;
+  var onShare = props.onShare || function () { };
 
   useEffect(function () {
     document.body.style.overflow = "hidden";
@@ -482,6 +650,11 @@ function DishModal(props) {
               <Icon n="fa-calendar-plus" /> Add to Meal Plan
             </button>
             <button className="btn-save" type="button"><Icon n="fa-bookmark" /></button>
+            <button className="btn-share-modal" type="button"
+              onClick={function () { onShare(dish); onClose(); }}
+              title="Share this dish">
+              <Icon n="fa-share-nodes" />
+            </button>
           </div>
         </div>
       </div>
@@ -551,6 +724,7 @@ export default function AIFoodFeed(props) {
   var s6 = useState(""); var transcript = s6[0]; var setTranscript = s6[1];
   var s9 = useState(null); var planDish = s9[0]; var setPlanDish = s9[1];
   var s10 = useState(""); var toast = s10[0]; var setToast = s10[1];
+  var s11 = useState(null); var shareDish = s11[0]; var setShareDish = s11[1];
 
   // ── Persist to localStorage on every change ───────────────────────────────
   useEffect(function () {
@@ -779,7 +953,7 @@ export default function AIFoodFeed(props) {
               )
               : filtered.map(function (dish, i) {
                 return <DishCard key={dish.id || i} dish={dish} index={i}
-                  onClick={setSelected} onAddPlan={setPlanDish} />;
+                  onClick={setSelected} onAddPlan={setPlanDish} onShare={setShareDish} />;
               })
           }
         </div>
@@ -790,7 +964,8 @@ export default function AIFoodFeed(props) {
 
       {selected && (
         <DishModal dish={selected} onClose={function () { setSelected(null); }}
-          onAddPlan={function (d) { setSelected(null); setPlanDish(d); }} />
+          onAddPlan={function (d) { setSelected(null); setPlanDish(d); }}
+          onShare={function (d) { setSelected(null); setShareDish(d); }} />
       )}
 
       {planDish && (
@@ -799,6 +974,11 @@ export default function AIFoodFeed(props) {
       )}
 
       {toast && <Toast message={toast} onHide={function () { setToast(""); }} />}
+
+      {/* Share modal */}
+      {shareDish && (
+        <ShareModal dish={shareDish} onClose={function () { setShareDish(null); }} />
+      )}
 
     </div>
   );

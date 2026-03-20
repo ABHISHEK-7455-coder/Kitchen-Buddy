@@ -1675,3 +1675,316 @@ input {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ═══════════════════════════════════════════════
+   SHARE MODAL
+═══════════════════════════════════════════════ */
+.share-backdrop {
+  position: fixed;
+  top: 70px;
+  left: 34%;
+  /* inset: 0; */
+  background: rgba(0, 0, 0, .75);
+  backdrop-filter: blur(6px);
+  z-index: 350;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: backdropIn .2s ease;
+}
+
+.share-modal {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 520px;
+  padding: 0 0 32px;
+  animation: sheetIn .32s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Header */
+.share-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+
+.share-dish-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.share-dish-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.share-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.share-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 3px;
+}
+
+.share-dish-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.share-dish-meta {
+  font-size: 12px;
+  color: rgba(255, 255, 255, .45);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.share-dish-meta i {
+  font-size: 11px;
+}
+
+.share-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .08);
+  color: rgba(255, 255, 255, .6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  transition: all .18s;
+}
+
+.share-close:hover {
+  background: rgba(255, 255, 255, .15);
+  color: #fff;
+}
+
+/* Native share button */
+.share-native-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: calc(100% - 40px);
+  margin: 16px 20px 0;
+  padding: 13px;
+  background: var(--brand-light);
+  border: 1.5px solid rgba(232, 98, 42, .3);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brand);
+  transition: all .18s;
+}
+
+.share-native-btn:hover {
+  background: rgba(232, 98, 42, .2);
+}
+
+/* Platform label */
+.share-platforms-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .3);
+  padding: 16px 20px 10px;
+}
+
+/* Platform grid */
+.share-platforms {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 20px;
+}
+
+.share-platform-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 8px;
+  background: var(--pb, rgba(255, 255, 255, .04));
+  border: 1.5px solid rgba(255, 255, 255, .07);
+  border-radius: 14px;
+  transition: all .2s;
+  position: relative;
+}
+
+.share-platform-btn:hover {
+  border-color: var(--pc, #fff);
+  background: color-mix(in srgb, var(--pc, #fff) 15%, transparent);
+  transform: translateY(-2px);
+}
+
+.share-platform-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--pb, rgba(255, 255, 255, .08));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--pc, #fff);
+}
+
+.share-platform-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, .7);
+  text-align: center;
+}
+
+.share-copy-hint {
+  font-size: 9px;
+  color: rgba(255, 255, 255, .3);
+  position: absolute;
+  bottom: 6px;
+}
+
+/* Copy text row */
+.share-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 20px 0;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.share-copy-text-preview {
+  flex: 1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, .35);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.share-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, .08);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, .7);
+  transition: all .18s;
+  flex-shrink: 0;
+}
+
+.share-copy-btn:hover {
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+}
+
+.share-copy-btn.copied {
+  background: rgba(34, 197, 94, .2);
+  color: #4ade80;
+}
+
+/* Card share button */
+.card-share-btn {
+  position: absolute;
+  top: 52px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(6px);
+  border: 1.5px solid rgba(255, 255, 255, .2);
+  color: #fff;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all .2s;
+  z-index: 5;
+}
+
+.dish-card:hover .card-share-btn {
+  opacity: 1;
+}
+
+.card-share-btn:hover {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+/* Share button in modal actions */
+.btn-share-modal {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-btn, 10px);
+  background: var(--surface2, #222);
+  border: 1px solid var(--border, rgba(255, 255, 255, .08));
+  color: var(--muted, #888);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .18s;
+  flex-shrink: 0;
+}
+
+.btn-share-modal:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .share-platforms {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .share-platform-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .share-platform-name {
+    font-size: 10px;
+  }
+
+  .card-share-btn {
+    opacity: 1 !important;
+    top: 48px;
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+}

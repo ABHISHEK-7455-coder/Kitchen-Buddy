@@ -1,5 +1,7 @@
 /* ===== RESET & BASE ===== */
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -8,6 +10,14 @@
 body {
     font-family: 'DM Sans', 'Segoe UI', sans-serif;
     background: #f5f0eb;
+    color: #2d2d2d;
+}
+
+/* ===== ROOT ===== */
+.ml-root {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: #f5f0eb;
+    min-height: 100vh;
     color: #2d2d2d;
 }
 
@@ -34,8 +44,16 @@ body {
     font-weight: 500;
 }
 
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
 .breadcrumb span {
     color: #ccc;
+}
+
+.breadcrumb .bc-current {
+    color: #555;
 }
 
 /* ===== PAGE HEADER ===== */
@@ -43,7 +61,9 @@ body {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 28px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 14px;
 }
 
 .page-header-left h1 {
@@ -59,16 +79,48 @@ body {
     color: #aaa;
 }
 
-.page-header-left p span {
+.page-header-left p em {
     color: #e8622a;
+    font-style: normal;
     font-weight: 500;
 }
 
 .header-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
     margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+/* ===== BUTTONS ===== */
+.btn-saved-meals {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1.5px solid #e8622a;
+    background: transparent;
+    color: #e8622a;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.btn-saved-meals:hover {
+    background: #fff8f5;
+}
+
+.saved-count {
+    background: #e8622a;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
 }
 
 .btn-discard {
@@ -80,6 +132,7 @@ body {
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
+    font-family: inherit;
     transition: background 0.15s;
 }
 
@@ -87,8 +140,8 @@ body {
     background: #f5f5f5;
 }
 
-.btn-save {
-    padding: 10px 22px;
+.meal-btn-save {
+    padding: 10px 16px;
     border-radius: 10px;
     border: none;
     background: #e8622a;
@@ -96,11 +149,37 @@ body {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    font-family: inherit;
+    transition: background 0.3s;
 }
 
 .btn-save:hover {
     background: #d4531e;
+}
+
+.btn-save.success {
+    background: #34a853;
+}
+
+.btn-primary {
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    background: #e8622a;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.btn-primary:hover {
+    background: #d4531e;
+}
+
+.btn-primary.full-width {
+    width: 100%;
 }
 
 /* ===== MAIN GRID ===== */
@@ -110,11 +189,12 @@ body {
     gap: 22px;
 }
 
-/* ===== LEFT COLUMN ===== */
-.left-col {
+/* ===== COLUMNS ===== */
+.left-col,
+.right-col {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
 }
 
 /* ===== RECIPE CARD ===== */
@@ -130,12 +210,67 @@ body {
     width: 100%;
     height: 230px;
     overflow: hidden;
+    background: #f5f0eb;
+    cursor: pointer;
 }
 
 .recipe-image-wrap img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+}
+
+.image-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.image-overlay span {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.recipe-image-wrap:hover .image-overlay {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.recipe-image-wrap:hover .image-overlay span {
+    opacity: 1;
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 2px dashed #e0d0c8;
+}
+
+.img-ph-icon {
+    font-size: 40px;
+}
+
+.img-ph-label {
+    font-size: 13px;
+    color: #bbb;
+    font-weight: 500;
+}
+
+.img-ph-hint {
+    font-size: 12px;
+    color: #ccc;
 }
 
 .camera-btn {
@@ -154,10 +289,15 @@ body {
     font-size: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     color: #e8622a;
+    transition: transform 0.15s;
+}
+
+.camera-btn:hover {
+    transform: scale(1.1);
 }
 
 .recipe-info {
-    padding: 16px 18px 18px;
+    padding: 10px 18px 0px;
 }
 
 .recipe-title-row {
@@ -165,25 +305,59 @@ body {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 8px;
+    gap: 8px;
 }
 
-.recipe-title-row h2 {
+.recipe-name-input {
     font-size: 18px;
     font-weight: 700;
     color: #1a1a1a;
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 55%;
+    font-family: inherit;
 }
 
-.stars {
-    display: flex;
-    gap: 2px;
-    color: #e8622a;
-    font-size: 16px;
+.recipe-name-input::placeholder {
+    color: #ccc;
+    font-weight: 400;
 }
 
-.recipe-desc {
+.recipe-desc-input {
     font-size: 13px;
     color: #888;
     line-height: 1.55;
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    resize: none;
+    font-family: inherit;
+}
+
+.recipe-desc-input::placeholder {
+    color: #ccc;
+}
+
+/* ===== STAR RATING ===== */
+.star-rating {
+    display: flex;
+    gap: 3px;
+}
+
+.star {
+    font-size: 20px;
+    color: #e0d0c8;
+    transition: color 0.1s;
+}
+
+.star.active {
+    color: #e8622a;
+}
+
+.star.clickable {
+    cursor: pointer;
 }
 
 /* ===== MEAL PROPERTIES ===== */
@@ -217,6 +391,11 @@ body {
     margin-bottom: 6px;
 }
 
+.health-score-val {
+    color: #e8622a;
+    font-weight: 700;
+}
+
 .select-wrap {
     display: flex;
     align-items: center;
@@ -227,7 +406,7 @@ body {
     background: #fafafa;
 }
 
-.select-wrap .select-icon {
+.select-icon {
     font-size: 14px;
 }
 
@@ -240,6 +419,7 @@ body {
     font-weight: 500;
     cursor: pointer;
     width: 100%;
+    font-family: inherit;
 }
 
 .cooking-time-box {
@@ -257,13 +437,27 @@ body {
     color: #e8622a;
 }
 
-.cooking-time-box span {
+.cooking-time-input {
+    border: none;
+    background: transparent;
+    outline: none;
     font-size: 13px;
     font-weight: 500;
     color: #2d2d2d;
+    width: 50%;
+    font-family: inherit;
 }
 
-/* Difficulty Buttons */
+.cooking-time-input::-webkit-inner-spin-button,
+.cooking-time-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.time-unit {
+    font-size: 13px;
+    color: #aaa;
+}
+
 .difficulty-btns {
     display: flex;
     gap: 8px;
@@ -274,11 +468,16 @@ body {
     border-radius: 8px;
     border: 1px solid #e8e8e8;
     background: #fafafa;
+    color: #aaa;
     font-size: 12px;
     font-weight: 500;
-    color: #aaa;
     cursor: pointer;
+    font-family: inherit;
     transition: all 0.15s;
+}
+
+.diff-btn:hover:not(.active) {
+    background: #f0f0f0;
 }
 
 .diff-btn.active {
@@ -287,19 +486,14 @@ body {
     border-color: #e8622a;
 }
 
-.diff-btn:hover:not(.active) {
-    background: #f0f0f0;
-}
-
-/* Health Score */
-.health-score-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.health-slider {
+    width: 100%;
+    accent-color: #e8622a;
+    margin-bottom: 4px;
+    display: block;
 }
 
 .health-bar {
-    flex: 1;
     height: 6px;
     border-radius: 3px;
     background: #eee;
@@ -310,20 +504,7 @@ body {
     height: 100%;
     border-radius: 3px;
     background: linear-gradient(90deg, #e8622a, #f0a060);
-}
-
-.health-score-num {
-    font-size: 13px;
-    font-weight: 600;
-    color: #aaa;
-    white-space: nowrap;
-}
-
-/* ===== RIGHT COLUMN ===== */
-.right-col {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    transition: width 0.2s;
 }
 
 /* ===== PANEL ===== */
@@ -334,7 +515,6 @@ body {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* ===== INGREDIENTS ===== */
 .panel-header {
     display: flex;
     align-items: center;
@@ -351,11 +531,21 @@ body {
     color: #1a1a1a;
 }
 
-.panel-title .title-icon {
+.title-icon {
     font-size: 17px;
     color: #e8622a;
 }
 
+.count-badge {
+    font-size: 12px;
+    background: #f5e8e0;
+    color: #e8622a;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* ===== INGREDIENTS ===== */
 .add-ingredient-btn {
     font-size: 13px;
     color: #e8622a;
@@ -363,12 +553,30 @@ body {
     border: none;
     cursor: pointer;
     font-weight: 600;
+    font-family: inherit;
+}
+
+.add-ingredient-btn:hover {
+    text-decoration: underline;
 }
 
 .ingredients-list {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+}
+
+.empty-ingredients {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #f0d5c8;
+    border-radius: 12px;
+    padding: 16px;
+    color: #ccc;
+    font-size: 13px;
+    min-height: 64px;
 }
 
 .ingredient-tag {
@@ -394,22 +602,86 @@ body {
     padding: 0;
     display: flex;
     align-items: center;
+    transition: color 0.1s;
 }
 
 .ingredient-tag button:hover {
     color: #e8622a;
 }
 
-/* ===== COOKING TIMELINE ===== */
+.ingredient-input-row {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.ingredient-text-input {
+    flex: 1;
+    border: 1px solid #f0d5c8;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+}
+
+.btn-add-small {
+    background: #e8622a;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+.btn-cancel-small {
+    background: #f5f5f5;
+    color: #888;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn-cancel-small:hover {
+    background: #ebebeb;
+}
+
+/* ===== TIMELINE ===== */
 .timeline-header-meta {
     font-size: 12px;
     color: #bbb;
+}
+
+.empty-steps {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #e0d0c8;
+    border-radius: 14px;
+    padding: 32px 16px;
+    color: #ccc;
+    font-size: 13px;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.empty-steps span:first-child {
+    font-size: 32px;
 }
 
 .timeline-steps {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-bottom: 16px;
 }
 
 .timeline-step {
@@ -429,13 +701,12 @@ body {
     font-weight: 700;
     flex-shrink: 0;
     margin-top: 2px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
 }
 
-.step-number.done {
-    background: #e8622a;
-    color: #fff;
-}
-
+.step-number.done,
 .step-number.in-progress {
     background: #e8622a;
     color: #fff;
@@ -446,17 +717,21 @@ body {
     color: #bbb;
 }
 
+.step-number:hover {
+    opacity: 0.8;
+}
+
 .step-content {
     flex: 1;
     border-radius: 12px;
     padding: 14px 16px;
+    border: 1.5px solid transparent;
     background: #fdf8f5;
-    border: 1px solid transparent;
 }
 
 .step-content.in-progress {
     background: #fff;
-    border: 1.5px solid #e8622a;
+    border-color: #e8622a;
 }
 
 .step-content.pending {
@@ -466,27 +741,25 @@ body {
 .step-top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
 }
 
-.step-name {
+.step-name-input {
     font-size: 14px;
     font-weight: 600;
+    border: none;
+    outline: none;
+    background: transparent;
     color: #1a1a1a;
+    font-family: inherit;
+    flex: 1;
+    min-width: 100px;
 }
 
-.step-name.pending-text {
+.step-name-input.pending-text {
     color: #bbb;
-}
-
-.step-time {
-    font-size: 11px;
-    background: #f5e8e0;
-    color: #e8622a;
-    padding: 3px 8px;
-    border-radius: 8px;
-    font-weight: 500;
 }
 
 .step-badge-inprogress {
@@ -500,15 +773,55 @@ body {
     text-transform: uppercase;
 }
 
-.step-body {
+.step-time-input {
+    font-size: 11px;
+    background: #f5e8e0;
+    color: #e8622a;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    width: 130px;
+}
+
+.step-remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ddd;
+    font-size: 16px;
+    line-height: 1;
+    padding: 2px;
+    transition: color 0.1s;
+}
+
+.step-remove-btn:hover {
+    color: #e8622a;
+}
+
+.step-body-input {
     font-size: 13px;
     color: #777;
     line-height: 1.5;
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    resize: none;
+    font-family: inherit;
 }
 
-.step-body.placeholder {
+.step-body-input::placeholder {
     color: #bbb;
-    font-style: normal;
+}
+
+.step-waiting {
+    font-size: 13px;
+    color: #bbb;
+    font-style: italic;
+    margin-top: 4px;
 }
 
 .step-actions {
@@ -530,14 +843,6 @@ body {
     color: #e8622a;
 }
 
-.step-waiting {
-    font-size: 13px;
-    color: #bbb;
-    font-style: italic;
-    margin-top: 4px;
-}
-
-/* Add Next Step */
 .add-step-btn {
     display: flex;
     align-items: center;
@@ -552,6 +857,7 @@ body {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    font-family: inherit;
     transition: background 0.15s;
 }
 
@@ -559,9 +865,385 @@ body {
     background: #fff8f5;
 }
 
-.add-step-btn .plus-icon {
+.plus-icon {
     font-size: 18px;
     font-weight: 700;
+}
+
+/* ===== IMAGE UPLOAD MODAL ===== */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(3px);
+}
+
+.modal-box {
+    position: relative;
+    background: #fff;
+    border-radius: 20px;
+    padding: 28px;
+    width: 380px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: fadeUp 0.2s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        transform: translateY(16px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #aaa;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #555;
+}
+
+.tab-switcher {
+    display: flex;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    background: #fafafa;
+    color: #888;
+    transition: all 0.15s;
+}
+
+.tab-btn.active {
+    background: #e8622a;
+    color: #fff;
+}
+
+.file-drop-zone {
+    border: 2px dashed #e0d0c8;
+    border-radius: 14px;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    background: #fdf8f5;
+    transition: border-color 0.15s;
+}
+
+.file-drop-zone:hover {
+    border-color: #e8622a;
+}
+
+.file-drop-icon {
+    font-size: 36px;
+}
+
+.file-drop-label {
+    font-size: 14px;
+    color: #888;
+    font-weight: 500;
+}
+
+.file-drop-hint {
+    font-size: 12px;
+    color: #bbb;
+}
+
+.url-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.url-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 10px;
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+.url-input:focus {
+    border-color: #e8622a;
+}
+
+.url-input.error {
+    border-color: #e8622a;
+}
+
+.url-error {
+    font-size: 12px;
+    color: #e8622a;
+}
+
+/* ===== SAVED MEALS DRAWER ===== */
+.drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(2px);
+}
+
+.drawer-panel {
+    width: 380px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.drawer-header {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid #f0ece8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.drawer-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.drawer-header p {
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 2px;
+}
+
+.drawer-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #eee;
+    background: #fafafa;
+    cursor: pointer;
+    font-size: 20px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.drawer-close:hover {
+    background: #f0f0f0;
+}
+
+.drawer-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.drawer-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 80px;
+    color: #ccc;
+    text-align: center;
+}
+
+.drawer-empty span:first-child {
+    font-size: 48px;
+}
+
+.drawer-empty strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: #bbb;
+}
+
+.drawer-empty p {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.drawer-item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1.5px solid #f0ece8;
+    background: #fdf8f5;
+    transition: all 0.15s;
+}
+
+.drawer-item:hover {
+    border-color: #e8622a;
+    background: #fff8f5;
+}
+
+.drawer-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.drawer-thumb-placeholder {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background: #f0ece8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.drawer-item-info {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.drawer-item-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+}
+
+.drawer-item-desc {
+    font-size: 12px;
+    color: #aaa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+}
+
+.drawer-item-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.meal-type-badge {
+    font-size: 11px;
+    background: #f0e8e4;
+    color: #e8622a;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.drawer-time {
+    font-size: 11px;
+    color: #bbb;
+}
+
+.drawer-item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.btn-load {
+    background: #f0e8e4;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #e8622a;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.btn-load:hover {
+    background: #e8d0c4;
+}
+
+.btn-delete {
+    background: #fafafa;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #bbb;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.btn-delete:hover {
+    background: #fee;
+    color: #e44;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -571,30 +1253,11 @@ body {
     }
 }
 
-@media (max-width: 600px) {
-    .page-container {
-        padding: 16px 16px 40px;
-    }
-
-    .navbar {
-        padding: 0 16px;
-        gap: 16px;
-    }
-
-    .search-bar {
-        display: none;
-    }
-}
-
-/* ══════════════════════════════════════════════
-   MEALLOG — MOBILE RESPONSIVE (enhanced)
-══════════════════════════════════════════════ */
 @media (max-width: 768px) {
     .page-container {
         padding: 16px 16px 80px;
     }
 
-    /* Header stacks on mobile */
     .meal-log-header {
         flex-direction: column;
         gap: 14px;
@@ -605,62 +1268,17 @@ body {
         font-size: 24px;
     }
 
-    .page-header-left p {
-        font-size: 13px;
-    }
-
-    .header-actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
-
-    .btn-discard,
-    .btn-save {
-        padding: 9px 18px;
-        font-size: 13px;
-    }
-
-    /* Single column grid */
-    .main-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    /* Recipe image */
     .recipe-image-wrap {
         height: 200px;
     }
 
-    .recipe-title-row h2 {
-        font-size: 16px;
-    }
-
-    .recipe-desc {
-        font-size: 12px;
-    }
-
-    /* Properties grid */
     .props-grid {
         grid-template-columns: 1fr 1fr;
         gap: 10px;
     }
 
-    /* Timeline */
-    .step-content {
-        padding: 12px;
-    }
-
-    .step-name {
-        font-size: 13px;
-    }
-
-    .step-body {
-        font-size: 12px;
-    }
-
-    /* Breadcrumb */
-    .breadcrumb {
-        font-size: 12px;
+    .drawer-panel {
+        width: 100vw;
     }
 }
 
@@ -669,7 +1287,7 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .difficulty-btns .diff-btn {
+    .diff-btn {
         padding: 6px 10px;
         font-size: 11px;
     }
@@ -685,5 +1303,9 @@ body {
 
     .add-step-btn {
         font-size: 13px;
+    }
+
+    .modal-box {
+        width: calc(100vw - 32px);
     }
 }
