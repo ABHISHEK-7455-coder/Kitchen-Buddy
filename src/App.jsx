@@ -52,7 +52,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        {/* ── HomePage now receives mealPlans + addMeal so MealPlan can sync ── */}
+        <Route path="/" element={<HomePage mealPlans={mealPlans} addMeal={addMeal} />} />
 
         {/* AI Feed — passes addMeal so it can sync to planner */}
         <Route

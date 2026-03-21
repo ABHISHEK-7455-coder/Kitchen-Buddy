@@ -249,9 +249,10 @@ export default function MealPlan({ mealPlans, addMeal }) {
         // Update local meal plan state
         setMeals(prev => prev.map(m => m.id === updatedMeal.id ? updatedMeal : m));
 
-        // Sync to CalendarView — use today's date as the key (YYYY-MM-DD)
+        // Sync to CalendarView — use today's LOCAL date as the key (YYYY-MM-DD)
         if (addMeal) {
-            const todayKey = new Date().toISOString().split("T")[0];
+            const now = new Date();
+            const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
             // CalendarView stores meals under mealPlans[dateKey][MealType]
             // label is "Breakfast" / "Lunch" / "Dinner" — matches CalendarView's type keys
             addMeal(todayKey, updatedMeal.label, {

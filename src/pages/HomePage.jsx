@@ -1,8 +1,9 @@
 import HeroCard from "../components/HeroCard";
 import MealPlan from "../components/MealPlan";
+import AIMealSuggestions from "../components/AIMealSuggestions.jsx";
 import Navbar from "../components/Navbar";
 
-export default function HomePage() {
+export default function HomePage({ mealPlans, addMeal }) {
     return (
         <>
             <Navbar />
@@ -10,16 +11,15 @@ export default function HomePage() {
                 width: '90%',
                 margin: 'auto',
                 padding: '32px 24px 0',
-                // Extra bottom padding on mobile for bottom nav
                 paddingBottom: 'max(32px, env(safe-area-inset-bottom, 80px))',
             }}>
                 <HeroCard />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '28px' }}>
-                    <MealPlan />
+                    <AIMealSuggestions mealPlans={mealPlans} addMeal={addMeal} />
+                    <MealPlan mealPlans={mealPlans} addMeal={addMeal} />
                 </div>
             </main>
 
-            {/* Mobile responsive override */}
             <style>{`
                 @media (max-width: 768px) {
                     main {

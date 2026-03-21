@@ -65,7 +65,10 @@ export default function CalendarView({ mealPlans, addMeal }) {
 
     const getKey = (date) => {
         const d = new Date(currentDate.getFullYear(), currentDate.getMonth(), date);
-        return d.toISOString().split("T")[0];
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
     };
 
     const openMealModal = (date, type) => {
@@ -171,6 +174,6 @@ export default function CalendarView({ mealPlans, addMeal }) {
                     </div>
                 </div>
             )}
-        </div>
+        npm ru</div>
     );
 }

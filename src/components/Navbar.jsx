@@ -1,5 +1,6 @@
 import '../pages/styles/Navbar.css';
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 const LogoIcon = () => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -40,10 +41,11 @@ function MobileBottomNav() {
 
 // ── Desktop Navbar ────────────────────────────────────────────────────────────
 export default function Navbar() {
+    const navigate = useNavigate()
     return (
         <>
             <nav className="navbar">
-                <div className="navbar__logo">
+                <div className="navbar__logo" onClick={()=>navigate("/")}>
                     <span className="navbar__logo-icon"><LogoIcon /></span>
                     Kitchen Buddy
                 </div>
