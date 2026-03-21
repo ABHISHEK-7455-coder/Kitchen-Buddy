@@ -1,6 +1,6 @@
 import HeroCard from "../components/HeroCard";
 import MealPlan from "../components/MealPlan";
-import AIMealSuggestions from "../components/AIMealSuggestions.jsx";
+import AIBot from "../components/AIBot";
 import Navbar from "../components/Navbar";
 
 export default function HomePage({ mealPlans, addMeal }) {
@@ -15,10 +15,12 @@ export default function HomePage({ mealPlans, addMeal }) {
             }}>
                 <HeroCard />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '28px' }}>
-                    <AIMealSuggestions mealPlans={mealPlans} addMeal={addMeal} />
                     <MealPlan mealPlans={mealPlans} addMeal={addMeal} />
                 </div>
             </main>
+
+            {/* Floating AI Bot — always visible on homepage */}
+            <AIBot addMeal={addMeal} />
 
             <style>{`
                 @media (max-width: 768px) {

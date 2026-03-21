@@ -1,0 +1,450 @@
+/* ===== FLOATING BUBBLE ===== */
+.bot-bubble-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 1000;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    background: #e8622a;
+    color: #fff;
+    font-size: 26px;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(232, 98, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.bot-bubble-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 30px rgba(232, 98, 42, 0.55);
+}
+
+.bot-bubble-btn.open {
+    background: #555;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.bot-unread-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+}
+
+/* ===== CHAT PANEL ===== */
+.bot-panel {
+    position: fixed;
+    bottom: 96px;
+    right: 28px;
+    z-index: 999;
+    width: 360px;
+    max-height: 580px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 16px 60px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: botSlideUp 0.25s ease;
+}
+
+@keyframes botSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ===== HEADER ===== */
+.bot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #e8622a;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.bot-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bot-header-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.bot-header-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.bot-header-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    opacity: 0.85;
+    margin-top: 1px;
+}
+
+.bot-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #86efac;
+    flex-shrink: 0;
+}
+
+.bot-header-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.15s;
+}
+
+.bot-header-close:hover {
+    opacity: 1;
+}
+
+/* ===== MESSAGES ===== */
+.bot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fdf8f5;
+}
+
+.bot-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.bot-messages::-webkit-scrollbar-thumb {
+    background: #e0d0c8;
+    border-radius: 4px;
+}
+
+/* ===== MESSAGE ROWS ===== */
+.bot-msg-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.user-msg-row {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.bot-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #e8622a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* ===== BUBBLES ===== */
+.bot-bubble {
+    max-width: 78%;
+    background: #fff;
+    border: 1.5px solid #f0ece8;
+    border-radius: 16px 16px 16px 4px;
+    padding: 10px 13px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.user-bubble {
+    max-width: 78%;
+    background: #e8622a;
+    color: #fff;
+    border-radius: 16px 16px 4px 16px;
+    padding: 10px 13px;
+}
+
+.bubble-text {
+    font-size: 13px;
+    line-height: 1.55;
+    color: inherit;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.user-bubble .bubble-text {
+    color: #fff;
+}
+
+/* ===== TYPING INDICATOR ===== */
+.typing-bubble {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 16px;
+}
+
+.typing-bubble span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e8622a;
+    opacity: 0.5;
+    animation: botBounce 1.2s infinite ease-in-out;
+}
+
+.typing-bubble span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-bubble span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes botBounce {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0.8);
+        opacity: 0.4;
+    }
+
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* ===== DISH CHIPS ===== */
+.bot-dish-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.bot-dish-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #fdf8f5;
+    border: 1.5px solid #f0d5c8;
+    border-radius: 12px;
+    padding: 9px 12px;
+}
+
+.bot-dish-chip-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.bot-dish-chip-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bot-dish-chip-meta {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 2px;
+}
+
+.bot-dish-chip-add {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: none;
+    background: #e8622a;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.bot-dish-chip-add:hover {
+    background: #d4531e;
+}
+
+/* ===== QUICK REPLIES ===== */
+.bot-quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.bot-quick-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1.5px solid #e8622a;
+    background: transparent;
+    color: #e8622a;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.bot-quick-btn:hover {
+    background: #e8622a;
+    color: #fff;
+}
+
+/* ===== INPUT ROW ===== */
+.bot-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid #f0ece8;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.bot-input {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    background: #fafafa;
+    transition: border-color 0.15s;
+}
+
+.bot-input:focus {
+    border-color: #e8622a;
+    background: #fff;
+}
+
+.bot-input::placeholder {
+    color: #ccc;
+}
+
+.bot-voice-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid #e8e8e8;
+    background: #fafafa;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.bot-voice-btn:hover {
+    border-color: #e8622a;
+}
+
+.bot-voice-btn.listening {
+    background: #e8622a;
+    border-color: #e8622a;
+    animation: botPulse 1s infinite;
+}
+
+@keyframes botPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(232, 98, 42, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(232, 98, 42, 0);
+    }
+}
+
+.bot-send-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #e8622a;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.bot-send-btn:hover:not(:disabled) {
+    background: #d4531e;
+    transform: scale(1.08);
+}
+
+.bot-send-btn:disabled {
+    background: #f0d5c8;
+    cursor: default;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+    .bot-panel {
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        max-height: 85vh;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .bot-bubble-btn {
+        bottom: 20px;
+        right: 16px;
+    }
+}
