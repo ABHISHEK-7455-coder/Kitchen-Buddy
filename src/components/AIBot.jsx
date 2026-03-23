@@ -4,18 +4,15 @@ import "../pages/styles/AIBot.css";
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
-// ─── localStorage keys (same as MealLog.jsx) ─────────────────────────────────
 const LS_SAVED_MEALS = "meallog_saved_meals";
 const LS_DRAFT = "meallog_draft";
 const LS_MEAL_PLANS = "mealPlans";
 
-// ─── localStorage helpers ─────────────────────────────────────────────────────
 const ls = {
     get: (key, fb) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; } catch { return fb; } },
     set: (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch { } },
 };
 
-// ─── Local date key (no UTC shift) ───────────────────────────────────────────
 function todayKey() {
     const d = new Date();
     return d.getFullYear() + "-" +
@@ -23,7 +20,6 @@ function todayKey() {
         String(d.getDate()).padStart(2, "0");
 }
 
-// ─── Image fetching (same system as AIFoodFeed) ───────────────────────────────
 var IMG_CACHE = {};
 
 var FOODISH_MAP = {
@@ -64,14 +60,11 @@ function getFoodishCategory(name) {
     return null;
 }
 
-// Returns a Promise<string> — image URL
 function fetchDishImageAsync(name, imgSearch) {
     if (IMG_CACHE.hasOwnProperty(name) && IMG_CACHE[name]) {
         return Promise.resolve(IMG_CACHE[name]);
     }
-
     const cat = getFoodishCategory(name);
-
     const tryFoodish = cat
         ? fetch("https://foodish-api.com/api/images/" + cat)
             .then(r => r.json())
@@ -86,7 +79,7 @@ function fetchDishImageAsync(name, imgSearch) {
         return fetch("https://api.unsplash.com/search/photos?query=" + q + "&per_page=1&orientation=landscape&client_id=" + key)
             .then(r => r.json())
             .then(d => {
-                const url = d && d.results && d.results[0] && d.results[0].urls && d.results[0].urls.raw;
+                const url = d?.results?.[0]?.urls?.raw;
                 return url ? url + "&w=400&h=300&fit=crop&auto=format&q=80" : null;
             })
             .catch(() => null);
@@ -102,12 +95,8 @@ function fetchDishImageAsync(name, imgSearch) {
     });
 }
 
-// ─── Save meal to MealLog (same shape as MealLog.jsx handleSave) ──────────────
-// Returns a Promise so callers can await it
 async function saveToMealLog(dish, mealType) {
-    // Fetch image before saving
     const imageUrl = await fetchDishImageAsync(dish.name, dish.imgSearch).catch(() => getFallback(dish.name));
-
     const newMeal = {
         id: Date.now(),
         name: dish.name || "",
@@ -120,25 +109,18 @@ async function saveToMealLog(dish, mealType) {
         rating: 0,
         ingredients: Array.isArray(dish.ingredients) ? dish.ingredients : [],
         steps: Array.isArray(dish.steps)
-            ? dish.steps.map((s, i) => ({
-                id: i + 1,
-                name: "Step " + (i + 1),
-                time: null,
-                status: "done",
-                body: typeof s === "string" ? s : (s.body || ""),
-            }))
+            ? dish.steps.map((s, i) => {
+                const text = typeof s === "string" ? s : (s.body || s.name || "");
+                return { id: i + 1, name: text, time: null, status: "done", body: text };
+            })
             : [],
     };
-
     const existing = ls.get(LS_SAVED_MEALS, []);
     ls.set(LS_SAVED_MEALS, [...existing, newMeal]);
-    // Also set as draft so MealLog page shows it when opened
     ls.set(LS_DRAFT, newMeal);
-
     return newMeal;
 }
 
-// ─── Save meal to CalendarView mealPlans ──────────────────────────────────────
 function saveToCalendar(dish, mealType, dateKey, addMeal) {
     const entry = {
         name: dish.name || "",
@@ -154,31 +136,25 @@ function saveToCalendar(dish, mealType, dateKey, addMeal) {
         difficulty: dish.difficulty || "Med",
         source: "ai_bot",
     };
-
     if (typeof addMeal === "function") {
         addMeal(dateKey, mealType, entry);
     } else {
-        // Fallback: write directly to localStorage
         const plans = ls.get(LS_MEAL_PLANS, {});
         plans[dateKey] = { ...(plans[dateKey] || {}), [mealType]: entry };
         ls.set(LS_MEAL_PLANS, plans);
     }
 }
 
-// ─── Groq API call ────────────────────────────────────────────────────────────
 function askGroq(messages) {
     return fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + GROQ_API_KEY,
-        },
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + GROQ_API_KEY },
         body: JSON.stringify({
             model: "llama-3.3-70b-versatile",
             max_tokens: 3500,
             temperature: 0.7,
             response_format: { type: "json_object" },
-            messages: messages,
+            messages,
         }),
     })
         .then(r => r.json())
@@ -188,7 +164,6 @@ function askGroq(messages) {
         });
 }
 
-// ─── Build user prefs context ─────────────────────────────────────────────────
 function buildPrefsContext() {
     try {
         const p = JSON.parse(localStorage.getItem("kitchenBuddyPrefs") || "{}");
@@ -211,7 +186,6 @@ function buildPrefsContext() {
     } catch { return "General food lover"; }
 }
 
-// ─── System prompt ────────────────────────────────────────────────────────────
 function buildSystemPrompt() {
     return `You are Kitchen Buddy's friendly AI meal assistant. You help users:
 1. Get meal suggestions for Breakfast, Lunch, or Dinner
@@ -246,16 +220,133 @@ DISH OBJECT shape (for suggest and add_meal):
   "difficulty": "Easy",
   "isVeg": true,
   "calories": "350 kcal",
-  "imgSearch": "2-3 word food photography term e.g. 'paneer curry bowl' (never the dish name)",
-  "ingredients": ["item1","item2","item3","item4","item5","item6"],
-  "steps": ["Step 1 full text","Step 2 full text","Step 3 full text","Step 4 full text","Step 5 full text"]
+  "imgSearch": "2-3 word food photography term e.g. 'paneer curry bowl'",
+  "ingredients": ["2 cups basmati rice","1 cup paneer cubed","2 tbsp oil","1 tsp cumin seeds","1 onion finely chopped","2 tomatoes pureed","1 tsp garam masala"],
+  "steps": [
+    "Heat 2 tbsp oil in a deep pan over medium flame, add 1 tsp cumin seeds and let them splutter for 30 seconds until fragrant.",
+    "Add finely chopped onions and sauté for 5-6 minutes stirring frequently until they turn golden brown.",
+    "Add tomato puree, garam masala, turmeric and salt, cook for 4-5 minutes until oil separates from the masala.",
+    "Add the main ingredient, stir well to coat with the masala and cook for 3-4 minutes on medium heat.",
+    "Add water or stock as needed, cover and simmer on low heat for 8-10 minutes until fully cooked through.",
+    "Garnish with fresh coriander leaves and serve hot with rice or bread."
+  ]
 }
 
-CRITICAL: Always include ALL fields. ingredients must have 5-7 items. steps must have 4-6 full sentences. Never truncate.
+CRITICAL RULES FOR STEPS:
+- Every step must be a COMPLETE detailed sentence of at least 15 words
+- Include exact quantities, temperatures, timings, and technique in each step
+- Always include 5-6 steps minimum
+- ingredients must have 6-8 items with quantities
+- Never truncate any field
 
 PERSONALITY: Warm, concise, friendly. Use 1-2 emojis max per message. Keep messages short.
 Never ask more than one question at a time.
 Today's date: ${todayKey()}`;
+}
+
+// ─── Dish Detail Modal ────────────────────────────────────────────────────────
+function DishDetailModal({ dish, mealType, onAdd, onClose }) {
+    const [imgSrc, setImgSrc] = useState(null);
+    const [activeTab, setActiveTab] = useState("ingredients");
+
+    useEffect(() => {
+        fetchDishImageAsync(dish.name, dish.imgSearch)
+            .then(setImgSrc)
+            .catch(() => setImgSrc(getFallback(dish.name)));
+    }, [dish.name]);
+
+    const steps = Array.isArray(dish.steps) ? dish.steps : [];
+    const ingredients = Array.isArray(dish.ingredients) ? dish.ingredients : [];
+
+    return (
+        <div className="dish-modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <div className="dish-modal">
+
+                {/* Hero image */}
+                <div className="dish-modal-hero">
+                    {imgSrc
+                        ? <img src={imgSrc} alt={dish.name} />
+                        : <div className="dish-modal-hero-placeholder">🍽️</div>
+                    }
+                    <button className="dish-modal-close" onClick={onClose}>×</button>
+                    <div className="dish-modal-hero-overlay">
+                        <h2 className="dish-modal-title">{dish.name}</h2>
+                        <p className="dish-modal-desc">{dish.description}</p>
+                    </div>
+                </div>
+
+                {/* Meta badges */}
+                <div className="dish-modal-meta">
+                    <span className="dish-meta-badge">{dish.isVeg ? "🌿 Veg" : "🍗 Non-Veg"}</span>
+                    <span className="dish-meta-badge">⏱ {dish.time}</span>
+                    <span className="dish-meta-badge">🔥 {dish.calories}</span>
+                    <span className="dish-meta-badge">📊 {dish.difficulty}</span>
+                    {dish.cuisine && <span className="dish-meta-badge">🌍 {dish.cuisine}</span>}
+                </div>
+
+                {/* Tabs */}
+                <div className="dish-modal-tabs">
+                    <button
+                        className={`dish-tab-btn ${activeTab === "ingredients" ? "active" : ""}`}
+                        onClick={() => setActiveTab("ingredients")}
+                    >
+                        🧂 Ingredients
+                        <span className="dish-tab-count">{ingredients.length}</span>
+                    </button>
+                    <button
+                        className={`dish-tab-btn ${activeTab === "steps" ? "active" : ""}`}
+                        onClick={() => setActiveTab("steps")}
+                    >
+                        📋 Steps
+                        <span className="dish-tab-count">{steps.length}</span>
+                    </button>
+                </div>
+
+                {/* Tab content */}
+                <div className="dish-modal-body">
+                    {activeTab === "ingredients" && (
+                        <div className="dish-modal-ingredients">
+                            {ingredients.length === 0
+                                ? <p className="dish-modal-empty">No ingredients listed.</p>
+                                : ingredients.map((ing, i) => (
+                                    <div className="dish-ing-row" key={i}>
+                                        <span className="dish-ing-dot" />
+                                        <span className="dish-ing-text">{ing}</span>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    )}
+                    {activeTab === "steps" && (
+                        <div className="dish-modal-steps">
+                            {steps.length === 0
+                                ? <p className="dish-modal-empty">No steps listed.</p>
+                                : steps.map((step, i) => (
+                                    <div className="dish-step-row" key={i}>
+                                        <div className="dish-step-num">{i + 1}</div>
+                                        <p className="dish-step-text">
+                                            {typeof step === "string" ? step : (step.body || step.name || "")}
+                                        </p>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="dish-modal-footer">
+                    <button className="dish-modal-cancel" onClick={onClose}>Maybe Later</button>
+                    <button
+                        className="dish-modal-add"
+                        onClick={() => { onAdd(dish, mealType); onClose(); }}
+                    >
+                        + Add to {mealType || "Meal Log"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 // ─── Typing indicator ─────────────────────────────────────────────────────────
@@ -270,35 +361,35 @@ function TypingIndicator() {
     );
 }
 
-// ─── Dish suggestion card (inside chat) ───────────────────────────────────────
-function DishChip({ dish, mealType, onAdd }) {
+// ─── Dish chip — name is now clickable ────────────────────────────────────────
+function DishChip({ dish, mealType, onAdd, onViewDetail }) {
     return (
         <div className="bot-dish-chip">
-            <div className="bot-dish-chip-info">
-                <div className="bot-dish-chip-name">{dish.name}</div>
+            <div className="bot-dish-chip-info" onClick={() => onViewDetail(dish, mealType)} title="Tap to see full recipe">
+                <div className="bot-dish-chip-name">
+                    {dish.name}
+                    <span className="dish-chip-peek">👁 View recipe</span>
+                </div>
                 <div className="bot-dish-chip-meta">
                     {dish.isVeg ? "🌿 Veg" : "🍗 Non-Veg"} · ⏱ {dish.time} · 🔥 {dish.calories}
                 </div>
             </div>
-            <button
-                className="bot-dish-chip-add"
-                onClick={() => onAdd(dish, mealType)}
-            >+ Add</button>
+            <button className="bot-dish-chip-add" onClick={() => onAdd(dish, mealType)}>
+                + Add
+            </button>
         </div>
     );
 }
 
-// ─── Single chat message ──────────────────────────────────────────────────────
-function ChatMessage({ msg, onAddDish }) {
+// ─── Chat message ─────────────────────────────────────────────────────────────
+function ChatMessage({ msg, onAddDish, onViewDetail }) {
     const isBot = msg.role === "bot";
-
     return (
         <div className={isBot ? "bot-msg-row" : "user-msg-row"}>
             {isBot && <div className="bot-avatar">🍳</div>}
             <div className={isBot ? "bot-bubble" : "user-bubble"}>
                 <p className="bubble-text">{msg.content}</p>
 
-                {/* Dish suggestions */}
                 {isBot && msg.dishes && msg.dishes.length > 0 && (
                     <div className="bot-dish-list">
                         {msg.dishes.map((d, i) => (
@@ -307,12 +398,12 @@ function ChatMessage({ msg, onAddDish }) {
                                 dish={d}
                                 mealType={msg.mealType}
                                 onAdd={onAddDish}
+                                onViewDetail={onViewDetail}
                             />
                         ))}
                     </div>
                 )}
 
-                {/* Quick reply buttons */}
                 {isBot && msg.quickReplies && msg.quickReplies.length > 0 && (
                     <div className="bot-quick-replies">
                         {msg.quickReplies.map((qr, i) => (
@@ -327,7 +418,7 @@ function ChatMessage({ msg, onAddDish }) {
     );
 }
 
-// ─── Main AIBot component ─────────────────────────────────────────────────────
+// ─── Main AIBot ───────────────────────────────────────────────────────────────
 export default function AIBot({ addMeal }) {
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState("");
@@ -335,15 +426,17 @@ export default function AIBot({ addMeal }) {
     const [loading, setLoading] = useState(false);
     const [listening, setListening] = useState(false);
     const [unread, setUnread] = useState(0);
+    const [detailDish, setDetailDish] = useState(null); // { dish, mealType }
 
-    // Conversation history for Groq (role: system/user/assistant)
     const historyRef = useRef([]);
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
     const recRef = useRef(null);
+    const greetedRef = useRef(false);
 
-    // ── Greeting on first open ─────────────────────────────────────────────────
     useEffect(() => {
+        if (greetedRef.current) return;
+        greetedRef.current = true;
         let prefs = {};
         try { prefs = JSON.parse(localStorage.getItem("kitchenBuddyPrefs") || "{}"); } catch { }
         const name = prefs.name ? ", " + prefs.name : "";
@@ -357,26 +450,25 @@ export default function AIBot({ addMeal }) {
         );
     }, []);
 
-    // ── Auto scroll ────────────────────────────────────────────────────────────
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, loading]);
 
-    // ── Focus input on open ────────────────────────────────────────────────────
     useEffect(() => {
         if (open) { setTimeout(() => inputRef.current?.focus(), 150); setUnread(0); }
     }, [open]);
 
-    // ─────────────────────────────────────────────────────────────────────────
     function pushBotMsg(content, dishes, mealType, quickReplies) {
         setMessages(prev => [...prev, { role: "bot", content, dishes: dishes || [], mealType, quickReplies: quickReplies || [] }]);
         if (!open) setUnread(n => n + 1);
     }
 
-    // ── Handle add dish from suggestion chip ───────────────────────────────────
+    function handleViewDetail(dish, mealType) {
+        setDetailDish({ dish, mealType });
+    }
+
     function handleAddDish(dish, mealType) {
         const mt = mealType || "Lunch";
-        // Ask confirmation
         pushBotMsg(
             'Add "' + dish.name + '" to your ' + mt + ' for today?',
             null, null,
@@ -387,7 +479,6 @@ export default function AIBot({ addMeal }) {
         );
     }
 
-    // ── Confirm add → write to MealLog + Calendar ──────────────────────────────
     async function confirmAdd(dish, mealType, dateKey) {
         await saveToMealLog(dish, mealType);
         saveToCalendar(dish, mealType, dateKey, addMeal);
@@ -402,59 +493,42 @@ export default function AIBot({ addMeal }) {
         );
     }
 
-    // ── Main send ──────────────────────────────────────────────────────────────
     async function sendMessage(text) {
         const userText = (text || input).trim();
         if (!userText || loading) return;
         setInput("");
-
-        // Push user message
         setMessages(prev => [...prev, { role: "user", content: userText }]);
-
-        // Build Groq history
         historyRef.current.push({ role: "user", content: userText });
-
         setLoading(true);
-
         try {
             const groqMessages = [
                 { role: "system", content: buildSystemPrompt() },
-                ...historyRef.current.slice(-12), // keep last 12 turns
+                ...historyRef.current.slice(-12),
             ];
-
             const res = await askGroq(groqMessages);
-
             const botText = res.message || "I'm not sure about that. Try asking for meal suggestions!";
             const action = res.action || null;
             const dishes = Array.isArray(res.dishes) ? res.dishes : [];
             const pending = res.pendingMeal || null;
             const pendingMT = res.pendingMealType || "Lunch";
             const pendingDate = res.pendingDate || todayKey();
-
-            // Push assistant reply to history
             historyRef.current.push({ role: "assistant", content: botText });
 
             if (action === "suggest") {
-                // Detect meal type from user message
                 const lower = userText.toLowerCase();
                 const mt = lower.includes("breakfast") ? "Breakfast"
                     : lower.includes("lunch") ? "Lunch"
                         : lower.includes("dinner") ? "Dinner"
                             : pendingMT;
-
                 pushBotMsg(botText, dishes, mt);
-
             } else if (action === "confirm_add" && pending) {
                 pushBotMsg(botText, null, null, [
                     { label: "✅ Yes, add it!", onClick: () => confirmAdd(pending, pendingMT, pendingDate) },
                     { label: "❌ No thanks", onClick: () => pushBotMsg("Got it! What else can I help with?") },
                 ]);
-
             } else if (action === "add_meal" && pending) {
                 confirmAdd(pending, pendingMT, pendingDate);
-
             } else {
-                // General reply with optional suggestion quick replies
                 const qr = dishes.length === 0 ? [
                     { label: "🌅 Breakfast ideas", onClick: () => sendMessage("Suggest breakfast ideas") },
                     { label: "☀️ Lunch ideas", onClick: () => sendMessage("Suggest lunch ideas") },
@@ -462,15 +536,12 @@ export default function AIBot({ addMeal }) {
                 ] : [];
                 pushBotMsg(botText, dishes, pendingMT, qr);
             }
-
         } catch (e) {
             pushBotMsg("Oops, something went wrong. Please try again! 🙏");
         }
-
         setLoading(false);
     }
 
-    // ── Voice input ────────────────────────────────────────────────────────────
     function toggleVoice() {
         if (listening) { recRef.current?.stop(); setListening(false); return; }
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -489,13 +560,20 @@ export default function AIBot({ addMeal }) {
         recRef.current = rec;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     return (
         <>
-            {/* ── Chat panel ── */}
+            {/* Dish detail modal — outside bot-panel so it overlays the whole page */}
+            {detailDish && (
+                <DishDetailModal
+                    dish={detailDish.dish}
+                    mealType={detailDish.mealType}
+                    onAdd={handleAddDish}
+                    onClose={() => setDetailDish(null)}
+                />
+            )}
+
             {open && (
                 <div className="bot-panel">
-                    {/* Header */}
                     <div className="bot-header">
                         <div className="bot-header-left">
                             <div className="bot-header-avatar">🍳</div>
@@ -510,16 +588,19 @@ export default function AIBot({ addMeal }) {
                         <button className="bot-header-close" onClick={() => setOpen(false)}>×</button>
                     </div>
 
-                    {/* Messages */}
                     <div className="bot-messages">
                         {messages.map((msg, i) => (
-                            <ChatMessage key={i} msg={msg} onAddDish={handleAddDish} />
+                            <ChatMessage
+                                key={i}
+                                msg={msg}
+                                onAddDish={handleAddDish}
+                                onViewDetail={handleViewDetail}
+                            />
                         ))}
                         {loading && <TypingIndicator />}
                         <div ref={bottomRef} />
                     </div>
 
-                    {/* Input */}
                     <div className="bot-input-row">
                         <input
                             ref={inputRef}
@@ -543,16 +624,13 @@ export default function AIBot({ addMeal }) {
                 </div>
             )}
 
-            {/* ── Floating bubble ── */}
             <button
                 className={"bot-bubble-btn " + (open ? "open" : "")}
                 onClick={() => setOpen(o => !o)}
                 title="Kitchen Buddy AI"
             >
                 {open ? "✕" : "🍳"}
-                {!open && unread > 0 && (
-                    <span className="bot-unread-badge">{unread}</span>
-                )}
+                {!open && unread > 0 && <span className="bot-unread-badge">{unread}</span>}
             </button>
         </>
     );

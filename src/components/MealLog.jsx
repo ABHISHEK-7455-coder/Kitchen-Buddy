@@ -176,7 +176,6 @@ function SavedMealsDrawer({ savedMeals, onSelect, onDelete, onClose }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function MealLog() {
-    // Restore draft from localStorage on first mount; fall back to empty
     const [meal, setMeal] = useState(() => ls.get(LS_DRAFT, { ...EMPTY_MEAL }));
     const [savedMeals, setSavedMeals] = useState(() => ls.get(LS_SAVED, []));
     const [newIngredient, setNewIngredient] = useState("");
@@ -252,19 +251,13 @@ export default function MealLog() {
         }
     };
 
-    // ── Discard — only place that wipes the draft ─────────────────────────────────
+    // ── Discard ───────────────────────────────────────────────────────────────────
     const handleDiscard = () => {
         const empty = { ...EMPTY_MEAL };
         setMeal(empty);
         ls.remove(LS_DRAFT);
         setSaveStatus("idle");
     };
-
-    // ── Button label ──────────────────────────────────────────────────────────────
-    // const saveBtnLabel =
-    //     saveStatus === "saved" ? "✓ Saved!" :
-    //         saveStatus === "updated" ? "✓ Updated!" :
-    //             meal.id ? "Update Entry" : "Save Entry";
 
     // ─────────────────────────────────────────────────────────────────────────────
     return (
@@ -335,7 +328,6 @@ export default function MealLog() {
                                         <span className="img-ph-hint">Upload a file or paste a URL</span>
                                     </div>
                                 )}
-                                
                             </div>
 
                             <div className="recipe-info">
@@ -460,11 +452,6 @@ export default function MealLog() {
                                     <span className="title-icon">📈</span>
                                     Cooking Timeline
                                 </div>
-                                {/* <span className="timeline-header-meta">
-                                    {meal.steps.length > 0
-                                        ? `${meal.steps.filter(s => s.status === "done").length}/${meal.steps.length} steps done`
-                                        : "No steps yet"}
-                                </span> */}
                             </div>
 
                             {meal.steps.length === 0 && (
@@ -486,10 +473,12 @@ export default function MealLog() {
 
                                         <div className={`step-content ${step.status}`}>
                                             <div className="step-top">
-                                                <input
+                                                {/* ── FIX: textarea so full step text wraps instead of being cut off ── */}
+                                                <textarea
                                                     className={`step-name-input ${step.status === "pending" ? "pending-text" : ""}`}
                                                     value={step.name}
                                                     onChange={(e) => updateStep(step.id, { name: e.target.value })}
+                                                    rows={2}
                                                 />
                                                 {step.status === "in-progress" && (
                                                     <span className="step-badge-inprogress">In Progress</span>
@@ -508,18 +497,6 @@ export default function MealLog() {
                                                     title="Remove step"
                                                 >×</button>
                                             </div>
-
-                                            {/* {step.status === "pending" ? (
-                                                <div className="step-waiting">Waiting for step {step.id - 1} to complete...</div>
-                                            ) : (
-                                                <textarea
-                                                    className="step-body-input"
-                                                    value={step.body || ""}
-                                                    onChange={(e) => updateStep(step.id, { body: e.target.value })}
-                                                    placeholder="Add notes for this step..."
-                                                    rows={2}
-                                                />
-                                            )} */}
 
                                             {step.status === "in-progress" && (
                                                 <div className="step-actions">
