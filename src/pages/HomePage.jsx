@@ -3,10 +3,10 @@ import MealPlan from "../components/MealPlan";
 import AIBot from "../components/AIBot";
 import Navbar from "../components/Navbar";
 
-export default function HomePage({ mealPlans, addMeal }) {
+export default function HomePage({ mealPlans, addMeal, onOpenProfile }) {
     return (
         <>
-            <Navbar />
+            <Navbar onOpenProfile={onOpenProfile} />
             <main style={{
                 width: '90%',
                 margin: 'auto',
@@ -19,7 +19,6 @@ export default function HomePage({ mealPlans, addMeal }) {
                 </div>
             </main>
 
-            {/* Floating AI Bot — always visible on homepage */}
             <AIBot addMeal={addMeal} />
 
             <style>{`

@@ -3,7 +3,8 @@ import "./Onboarding.css";
 
 // ─── Groq API helper ──────────────────────────────────────────────────────────
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-async function askClaude(systemPrompt, userMessage) {
+
+async function askGroq(systemPrompt, userMessage) {
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -24,16 +25,11 @@ async function askClaude(systemPrompt, userMessage) {
   const text = data.choices?.[0]?.message?.content || "";
   const cleaned = text.replace(/```json|```/g, "").trim();
   const match = cleaned.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-  try {
-    return JSON.parse(match?.[0] || "{}");
-  } catch {
-    return {};
-  }
+  try { return JSON.parse(match?.[0] || "{}"); }
+  catch { return {}; }
 }
 
 // ─── Font Awesome Icon ────────────────────────────────────────────────────────
-// FIX: strips any accidental "fa-solid" prefix the AI adds,
-// then applies exactly one "fa-solid" so icons always render correctly.
 function FAIcon({ name = "fa-circle", className = "" }) {
   const stripped = (name || "fa-circle")
     .replace(/\bfa-solid\b|\bfa-regular\b|\bfa-brands\b|\bfas\b|\bfar\b/g, "")
@@ -44,213 +40,162 @@ function FAIcon({ name = "fa-circle", className = "" }) {
 }
 
 // ─── Step definitions ─────────────────────────────────────────────────────────
-// type "ai_single"         → pick exactly ONE
-// type "ai_multi"          → pick ONE OR MORE (required)
-// type "ai_multi_optional" → pick any, or skip
 const STEPS = [
   {
     id: "name",
-    title: "Welcome to Kitchen Buddy",
-    subtitle: "What should we call you?",
+    title: "What should we call you?",
+    subtitle: "A name helps us personalise your entire experience",
     type: "text_input",
     field: "name",
     icon: "fa-user",
-    placeholder: "Enter your first name...",
+    placeholder: "Your first name…",
   },
   {
     id: "country",
     title: "Where are you from?",
-    subtitle: "We'll personalise your feed with dishes from your culture",
+    subtitle: "We'll surface dishes rooted in your culinary heritage",
     type: "ai_single",
     field: "country",
     icon: "fa-earth-asia",
     cols: 3,
     aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
     aiUser: () =>
-      `List 12 countries that have rich, distinct food cultures for a meal planning app.
-Return ONLY this JSON shape:
+      `List 12 countries with rich food cultures. Return ONLY:
 {"options":[{"id":"in","label":"India","icon":"fa-flag","subtitle":"Curries, spices & street food"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY (e.g. fa-flag, fa-utensils, fa-bowl-rice)
-- Do NOT include the words "fa-solid" in the icon value — just the icon name like "fa-flag"
-- Every object must have: id, label, icon, subtitle
-- 12 items total`,
+Rules: FA6 Solid icon names ONLY (e.g. fa-flag). No "fa-solid" prefix. id, label, icon, subtitle required. 12 items.`,
   },
   {
     id: "region",
-    title: "Which regions do you love?",
-    subtitle: "Pick all regional cuisines that excite you",
-    type: "ai_multi",           // ← MULTI: user can pick several regions
+    title: "Which regions excite you?",
+    subtitle: "Pick all the regional cuisines you love",
+    type: "ai_multi",
     field: "region",
     icon: "fa-map-location-dot",
     cols: 2,
     dependsOn: "country",
-    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
-    aiUser: (prefs) =>
-      `The user is from "${prefs.country?.label}". List 8 culinary regions or food-significant states/areas of that country.
-Return ONLY this JSON shape:
+    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown.`,
+    aiUser: (p) =>
+      `User is from "${p.country?.label}". List 8 culinary regions. Return ONLY:
 {"options":[{"id":"north","label":"North Indian","icon":"fa-compass","subtitle":"Rich gravies & breads"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY (e.g. fa-compass, fa-map, fa-location-dot)
-- Do NOT include "fa-solid" in the icon value
-- Every object must have: id, label, icon, subtitle
-- 8 items specific to "${prefs.country?.label}"`,
+Rules: FA6 Solid icon names, no "fa-solid" prefix. 8 items specific to "${p.country?.label}".`,
   },
   {
     id: "diet",
-    title: "Your diet preferences",
-    subtitle: "Select all that apply to how you eat",
-    type: "ai_multi",           // ← MULTI: e.g. someone can be veg + gluten-free
+    title: "How do you eat?",
+    subtitle: "Select every dietary preference that applies",
+    type: "ai_multi",
     field: "diet",
     icon: "fa-leaf",
     cols: 2,
-    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
+    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown.`,
     aiUser: () =>
-      `List 6 common diet types for a global meal planning app.
-Return ONLY this JSON shape:
-{"options":[{"id":"veg","label":"Vegetarian","icon":"fa-seedling","subtitle":"No meat or seafood"},{"id":"vegan","label":"Vegan","icon":"fa-leaf","subtitle":"No animal products"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY (e.g. fa-seedling, fa-leaf, fa-drumstick-bite)
-- Do NOT include "fa-solid" in the icon value
-- Every object must have: id, label, icon, subtitle
-- 6 items total`,
+      `List 6 common diet types. Return ONLY:
+{"options":[{"id":"veg","label":"Vegetarian","icon":"fa-seedling","subtitle":"No meat or seafood"},...]}
+Rules: FA6 Solid icon names, no "fa-solid" prefix. 6 items.`,
   },
   {
     id: "spice",
     title: "How spicy do you like it?",
-    subtitle: "Pick the heat level you enjoy most",
-    type: "ai_single",          // ← SINGLE: only one spice level
+    subtitle: "Choose the heat level that makes you happiest",
+    type: "ai_single",
     field: "spice",
     icon: "fa-fire",
     cols: 1,
-    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
+    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown.`,
     aiUser: () =>
-      `List 5 spice tolerance levels from no heat to extreme. Give them creative, evocative names.
-Return ONLY this JSON shape:
-{"options":[{"id":"none","label":"Ice Cold","icon":"fa-snowflake","subtitle":"Completely mild, zero heat"},{"id":"mild","label":"Gentle Warmth","icon":"fa-sun","subtitle":"Barely a tingle"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY (e.g. fa-snowflake, fa-sun, fa-pepper-hot, fa-fire, fa-skull)
-- Do NOT include "fa-solid" in the icon value
-- Every object must have: id, label, icon, subtitle
-- 5 items ordered coolest → hottest`,
+      `List 5 spice tolerance levels, coolest to hottest, with creative names. Return ONLY:
+{"options":[{"id":"none","label":"Ice Cold","icon":"fa-snowflake","subtitle":"Completely mild"},{"id":"mild","label":"Gentle Warmth","icon":"fa-sun","subtitle":"Barely a tingle"},...]}
+Rules: FA6 Solid icon names, no "fa-solid" prefix. 5 items ordered cool→hot.`,
   },
   {
     id: "cuisines",
-    title: "Favourite cuisines",
-    subtitle: "Pick everything you love — AI will blend them into your feed",
-    type: "ai_multi",           // ← MULTI
+    title: "Favourite world cuisines",
+    subtitle: "Pick everything you love — your feed blends them all",
+    type: "ai_multi",
     field: "cuisines",
     icon: "fa-utensils",
     cols: 3,
     dependsOn: ["country", "diet"],
-    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
-    aiUser: (prefs) => {
-      const dietLabel = Array.isArray(prefs.diet)
-        ? prefs.diet.map((d) => d.label).join(", ")
-        : prefs.diet?.label || "all foods";
-      return `The user is from "${prefs.country?.label}" with diet preferences: "${dietLabel}".
-List 12 world cuisines they'd likely enjoy — weight towards their background but include global variety.
-Return ONLY this JSON shape:
-{"options":[{"id":"indian","label":"Indian","icon":"fa-bowl-rice","subtitle":"Aromatic spices & curries"},{"id":"italian","label":"Italian","icon":"fa-pizza-slice","subtitle":"Pasta, risotto & more"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY (e.g. fa-bowl-rice, fa-pizza-slice, fa-fish)
-- Do NOT include "fa-solid" in the icon value
-- No two items may share the same icon value
-- Every object must have: id, label, icon, subtitle
-- 12 items total`;
+    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown.`,
+    aiUser: (p) => {
+      const d = Array.isArray(p.diet)
+        ? p.diet.map((x) => x.label).join(", ")
+        : p.diet?.label || "all";
+      return `User from "${p.country?.label}", diet: "${d}". List 12 world cuisines. Return ONLY:
+{"options":[{"id":"indian","label":"Indian","icon":"fa-bowl-rice","subtitle":"Aromatic spices"},...]}
+Rules: FA6 Solid icon names, no "fa-solid" prefix. No duplicate icons. 12 items.`;
     },
   },
   {
     id: "dislikes",
-    title: "Foods you'd rather avoid",
-    subtitle: "These will never appear in your personalised feed",
-    type: "ai_multi_optional",  // ← MULTI optional
+    title: "Foods you'd rather skip",
+    subtitle: "These will never appear in your feed",
+    type: "ai_multi_optional",
     field: "dislikes",
     icon: "fa-ban",
     cols: 3,
     dependsOn: ["diet", "country"],
-    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
-    aiUser: (prefs) => {
-      const dietLabel = Array.isArray(prefs.diet)
-        ? prefs.diet.map((d) => d.label).join(", ")
-        : prefs.diet?.label || "all foods";
-      return `The user follows a "${dietLabel}" diet from "${prefs.country?.label}".
-List 12 commonly disliked foods/ingredients relevant to their background.
-Return ONLY this JSON shape:
-{"options":[{"id":"bitter_gourd","label":"Bitter Gourd","icon":"fa-circle-xmark","subtitle":"Intensely bitter vegetable"},{"id":"mushrooms","label":"Mushrooms","icon":"fa-circle-minus","subtitle":"Earthy fungus texture"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY
-- Do NOT include "fa-solid" in the icon value
-- Every object must have: id, label, icon, subtitle
-- 12 items total`;
+    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown.`,
+    aiUser: (p) => {
+      const d = Array.isArray(p.diet)
+        ? p.diet.map((x) => x.label).join(", ")
+        : p.diet?.label || "all";
+      return `Diet: "${d}", from "${p.country?.label}". List 12 commonly disliked foods. Return ONLY:
+{"options":[{"id":"bitter_gourd","label":"Bitter Gourd","icon":"fa-circle-xmark","subtitle":"Very bitter"},{"id":"mushrooms","label":"Mushrooms","icon":"fa-circle-minus","subtitle":"Earthy texture"},...]}
+Rules: FA6 Solid icon names, no "fa-solid" prefix. 12 items.`;
     },
   },
   {
     id: "allergies",
     title: "Any food allergies?",
-    subtitle: "Your safety is our priority — these are strictly excluded",
-    type: "ai_multi_optional",  // ← MULTI optional
+    subtitle: "These are strictly excluded from every suggestion",
+    type: "ai_multi_optional",
     field: "allergies",
     icon: "fa-triangle-exclamation",
     cols: 3,
-    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
+    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown.`,
     aiUser: () =>
-      `List the 10 most medically recognised food allergens worldwide.
-Return ONLY this JSON shape:
+      `List 10 major food allergens. Return ONLY:
 {"options":[{"id":"gluten","label":"Gluten","icon":"fa-wheat-awn","subtitle":"Wheat, barley, rye"},{"id":"dairy","label":"Dairy","icon":"fa-droplet","subtitle":"Milk, cheese, butter"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY (e.g. fa-wheat-awn, fa-droplet, fa-egg, fa-fish)
-- Do NOT include "fa-solid" in the icon value
-- Every object must have: id, label, icon, subtitle
-- 10 items total`,
+Rules: FA6 Solid icon names, no "fa-solid" prefix. 10 items.`,
   },
   {
     id: "skill",
-    title: "Your cooking skill level",
-    subtitle: "We'll match recipe complexity to your comfort zone",
-    type: "ai_single",          // ← SINGLE
+    title: "Your cooking confidence",
+    subtitle: "We'll match recipe complexity to your level",
+    type: "ai_single",
     field: "skill",
     icon: "fa-star",
     cols: 2,
-    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
+    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown.`,
     aiUser: () =>
-      `List 4 home cooking skill levels from complete beginner to near-professional. Be warm and encouraging.
-Return ONLY this JSON shape:
-{"options":[{"id":"beginner","label":"Just Starting","icon":"fa-seedling","subtitle":"I can boil water and make toast"},{"id":"home_cook","label":"Confident Cook","icon":"fa-house","subtitle":"I follow recipes comfortably"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY (e.g. fa-seedling, fa-house, fa-hat-chef, fa-star)
-- Do NOT include "fa-solid" in the icon value
-- Every object must have: id, label, icon, subtitle
-- 4 items ordered beginner → expert`,
+      `List 4 home-cook skill levels, beginner to expert, warm and encouraging. Return ONLY:
+{"options":[{"id":"beginner","label":"Just Starting","icon":"fa-seedling","subtitle":"I can boil water and make toast"},...]}
+Rules: FA6 Solid icon names, no "fa-solid" prefix. 4 items ordered beginner→expert.`,
   },
   {
     id: "cooktime",
-    title: "Time you can spend cooking",
-    subtitle: "We'll prioritise recipes that fit your daily schedule",
-    type: "ai_single",          // ← SINGLE
+    title: "Time you have for cooking",
+    subtitle: "We'll prioritise recipes that fit your schedule",
+    type: "ai_single",
     field: "cookTime",
     icon: "fa-clock",
     cols: 2,
-    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown, no explanation.`,
+    aiSystem: `You are Kitchen Buddy's onboarding AI. Respond ONLY with raw JSON, no markdown.`,
     aiUser: () =>
-      `List 4 daily cooking time windows from ultra-quick to leisurely weekend cooking.
-Return ONLY this JSON shape:
-{"options":[{"id":"15","label":"Under 15 min","icon":"fa-bolt","subtitle":"Lightning-fast weeknight meals"},{"id":"30","label":"15–30 min","icon":"fa-clock","subtitle":"Balanced weekday cooking"},...]}
-Rules:
-- Use Font Awesome 6 Solid icon names ONLY (e.g. fa-bolt, fa-clock, fa-hourglass, fa-timer)
-- Do NOT include "fa-solid" in the icon value
-- Every object must have: id, label, icon, subtitle
-- 4 items ordered quickest → longest`,
+      `List 4 daily cooking time windows, quickest to leisurely. Return ONLY:
+{"options":[{"id":"15","label":"Under 15 min","icon":"fa-bolt","subtitle":"Lightning-fast weeknight meals"},...]}
+Rules: FA6 Solid icon names, no "fa-solid" prefix. 4 items.`,
   },
 ];
 
 // ─── Skeleton loader ──────────────────────────────────────────────────────────
 function Skeleton({ cols }) {
-  const count = cols === 1 ? 5 : cols === 2 ? 4 : cols === 3 ? 6 : 8;
+  const count = cols === 1 ? 5 : cols === 2 ? 4 : 6;
   return (
-    <div className={`ob-grid ob-grid-${cols}`}>
+    <div className={`up-grid up-grid-${cols}`}>
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="ob-card-opt skeleton">
+        <div key={i} className="up-opt-card skeleton">
           <div className="sk-icon" />
           <div className="sk-lines">
             <div className="sk-line sk-long" />
@@ -262,40 +207,47 @@ function Skeleton({ cols }) {
   );
 }
 
-// ─── Option card ──────────────────────────────────────────────────────────────
+// ─── Option Card ──────────────────────────────────────────────────────────────
 function OptCard({ opt, selected, onClick, multi }) {
   return (
     <button
-      className={`ob-card-opt ${selected ? "sel" : ""} ${multi ? "multi" : ""}`}
+      className={`up-opt-card${selected ? " sel" : ""}${multi ? " multi" : ""}`}
       onClick={onClick}
       type="button"
     >
-      <span className="opt-icon-wrap">
+      <span className="up-opt-icon">
         <FAIcon name={opt.icon || "fa-circle"} />
       </span>
-      <span className="opt-body">
-        <span className="opt-label">{opt.label}</span>
-        {opt.subtitle && <span className="opt-sub">{opt.subtitle}</span>}
+      <span className="up-opt-body">
+        <span className="up-opt-label">{opt.label}</span>
+        {opt.subtitle && <span className="up-opt-sub">{opt.subtitle}</span>}
       </span>
-      {/* Checkbox for multi, radio for single */}
-      <span className="opt-checkmark">
+      <span className="up-opt-check">
         {multi
           ? <FAIcon name={selected ? "fa-square-check" : "fa-square"} />
-          : <FAIcon name={selected ? "fa-circle-dot" : "fa-circle"} />
-        }
+          : <FAIcon name={selected ? "fa-circle-dot" : "fa-circle"} />}
       </span>
     </button>
   );
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
-export default function Onboarding({ onComplete }) {
+// ─── Main Component ───────────────────────────────────────────────────────────
+// Props:
+//   onComplete  — called when user saves / closes
+//   isModal     — true when opened via avatar (edit mode), false on first visit
+export default function Onboarding({ onComplete, isModal = false }) {
   const [idx, setIdx] = useState(0);
-  const [prefs, setPrefs] = useState({});
+  const [prefs, setPrefs] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("kitchenBuddyPrefs") || "{}"); }
+    catch { return {}; }
+  });
   const [cache, setCache] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [textVal, setTextVal] = useState("");
+  const [textVal, setTextVal] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("kitchenBuddyPrefs") || "{}").name || ""; }
+    catch { return ""; }
+  });
   const [customVal, setCustomVal] = useState("");
   const [animDir, setAnimDir] = useState("fwd");
   const [animKey, setAnimKey] = useState(0);
@@ -303,10 +255,10 @@ export default function Onboarding({ onComplete }) {
 
   const step = STEPS[idx];
   const isLast = idx === STEPS.length - 1;
-  const progress = (idx / STEPS.length) * 100;
   const isMulti = step.type === "ai_multi" || step.type === "ai_multi_optional";
+  const progress = ((idx + 1) / STEPS.length) * 100;
 
-  // ── Fetch AI options ─────────────────────────────────────────────────────
+  // ── Fetch AI options ───────────────────────────────────────────────────────
   useEffect(() => {
     if (!step.aiUser) return;
     if (cache[step.id]) return;
@@ -314,23 +266,17 @@ export default function Onboarding({ onComplete }) {
     const deps = Array.isArray(step.dependsOn)
       ? step.dependsOn
       : step.dependsOn ? [step.dependsOn] : [];
-
-    // For multi-select deps (diet, region) check array length > 0
-    // For single-select deps (country) check object exists
-    const depsReady = deps.every((d) => {
+    const ready = deps.every((d) => {
       const v = prefs[d];
       return Array.isArray(v) ? v.length > 0 : !!v;
     });
-    if (!depsReady) return;
+    if (!ready) return;
 
     setLoading(true);
     setError(false);
 
-    const userMsg = typeof step.aiUser === "function"
-      ? step.aiUser(prefs)
-      : step.aiUser;
-
-    askClaude(step.aiSystem, userMsg)
+    const msg = typeof step.aiUser === "function" ? step.aiUser(prefs) : step.aiUser;
+    askGroq(step.aiSystem, msg)
       .then((data) => {
         const opts = data.options || data[Object.keys(data)[0]] || [];
         if (!Array.isArray(opts) || opts.length === 0) throw new Error("empty");
@@ -340,16 +286,15 @@ export default function Onboarding({ onComplete }) {
       .finally(() => setLoading(false));
   }, [idx, prefs]);
 
-  // ── Focus text input ─────────────────────────────────────────────────────
   useEffect(() => {
     if (step.type === "text_input") textRef.current?.focus();
   }, [idx]);
 
-  // ── Navigation ───────────────────────────────────────────────────────────
+  // ── Navigation ─────────────────────────────────────────────────────────────
   const go = (dir, fn) => {
     setAnimDir(dir);
     setAnimKey((k) => k + 1);
-    setTimeout(fn, 60);
+    setTimeout(fn, 55);
   };
 
   const canNext = () => {
@@ -377,32 +322,22 @@ export default function Onboarding({ onComplete }) {
     go("fwd", () => setIdx((i) => i + 1));
   };
 
-  const back = () => {
-    if (idx === 0) return;
-    go("bck", () => setIdx((i) => i - 1));
-  };
-
+  const back = () => { if (idx > 0) go("bck", () => setIdx((i) => i - 1)); };
   const retry = () => {
     setCache((c) => { const n = { ...c }; delete n[step.id]; return n; });
     setError(false);
   };
 
-  // ── Selection ────────────────────────────────────────────────────────────
+  // ── Selection helpers ──────────────────────────────────────────────────────
   const pickSingle = (opt) => setPrefs((p) => ({ ...p, [step.field]: opt }));
-
   const toggleMulti = (opt) =>
     setPrefs((p) => {
       const arr = p[step.field] || [];
       const has = arr.some((x) => x.id === opt.id);
-      return {
-        ...p,
-        [step.field]: has
-          ? arr.filter((x) => x.id !== opt.id)
-          : [...arr, opt],
-      };
+      return { ...p, [step.field]: has ? arr.filter((x) => x.id !== opt.id) : [...arr, opt] };
     });
 
-  // ── Render body ──────────────────────────────────────────────────────────
+  // ── Render: step body ──────────────────────────────────────────────────────
   const sel = prefs[step.field];
   const opts = cache[step.id] || [];
   const cols = step.cols || 3;
@@ -410,12 +345,12 @@ export default function Onboarding({ onComplete }) {
   const renderBody = () => {
     if (step.type === "text_input") {
       return (
-        <div className="ob-text-wrap">
-          <div className="ob-text-field">
-            <FAIcon name={step.icon} className="ob-text-fa" />
+        <div className="up-text-wrap">
+          <div className="up-text-field">
+            <FAIcon name={step.icon} className="up-text-fa" />
             <input
               ref={textRef}
-              className="ob-text-input"
+              className="up-text-input"
               placeholder={step.placeholder}
               value={textVal}
               onChange={(e) => setTextVal(e.target.value)}
@@ -423,9 +358,9 @@ export default function Onboarding({ onComplete }) {
             />
           </div>
           {textVal.trim() && (
-            <div className="ob-text-hello">
+            <div className="up-hello">
               <FAIcon name="fa-circle-check" />
-              Hi <strong>{textVal.trim()}</strong>, let's build your taste profile!
+              Hi <strong>{textVal.trim()}</strong> — let's build your taste profile!
             </div>
           )}
         </div>
@@ -436,10 +371,10 @@ export default function Onboarding({ onComplete }) {
 
     if (error) {
       return (
-        <div className="ob-error">
+        <div className="up-error">
           <FAIcon name="fa-circle-exclamation" />
           <span>Couldn't load options right now.</span>
-          <button className="ob-retry" onClick={retry} type="button">
+          <button className="up-retry" onClick={retry} type="button">
             <FAIcon name="fa-rotate" /> Try again
           </button>
         </div>
@@ -449,23 +384,22 @@ export default function Onboarding({ onComplete }) {
     if (opts.length === 0) return <Skeleton cols={cols} />;
 
     return (
-      <div className="ob-opts-wrap">
-        {/* Hint bar */}
-        <div className="ob-multi-hint">
+      <div className="up-opts-wrap">
+        <div className="up-hint">
           <FAIcon name={
             step.type === "ai_multi_optional" ? "fa-circle-info"
-              : isMulti ? "fa-hand-pointer"
-                : "fa-circle-dot"
+              : isMulti ? "fa-hand-pointer" : "fa-circle-dot"
           } />
-          {step.type === "ai_multi_optional"
-            ? "Optional — skip if none apply"
-            : isMulti
-              ? `Select all that apply · ${(sel || []).length} selected`
-              : "Select one option below"}
+          <span>
+            {step.type === "ai_multi_optional"
+              ? "Optional — skip if none apply"
+              : isMulti
+                ? `Select all that apply · ${(sel || []).length} chosen`
+                : "Choose one"}
+          </span>
         </div>
 
-        {/* Options grid */}
-        <div className={`ob-grid ob-grid-${cols}`}>
+        <div className={`up-grid up-grid-${cols}`}>
           {opts.map((opt) => {
             const isSel = isMulti
               ? (sel || []).some((x) => x.id === opt.id)
@@ -482,13 +416,12 @@ export default function Onboarding({ onComplete }) {
           })}
         </div>
 
-        {/* Custom dislike input */}
         {step.id === "dislikes" && (
-          <div className="ob-custom-row">
-            <FAIcon name="fa-plus" className="ob-custom-fa" />
+          <div className="up-custom-row">
+            <FAIcon name="fa-plus" className="up-custom-fa" />
             <input
-              className="ob-custom-input"
-              placeholder="Add a custom food you dislike..."
+              className="up-custom-input"
+              placeholder="Add something else you dislike…"
               value={customVal}
               onChange={(e) => setCustomVal(e.target.value)}
               onKeyDown={(e) => {
@@ -506,11 +439,10 @@ export default function Onboarding({ onComplete }) {
           </div>
         )}
 
-        {/* No-allergy shortcut */}
         {step.id === "allergies" && (
           <button
             type="button"
-            className={`ob-none-btn ${!sel || sel.length === 0 ? "active" : ""}`}
+            className={`up-none-btn${!sel || sel.length === 0 ? " active" : ""}`}
             onClick={() => setPrefs((p) => ({ ...p, allergies: [] }))}
           >
             <FAIcon name="fa-circle-check" />
@@ -521,7 +453,7 @@ export default function Onboarding({ onComplete }) {
     );
   };
 
-  // ── Summary on last step ─────────────────────────────────────────────────
+  // ── Render: summary (last step) ────────────────────────────────────────────
   const renderSummary = () => {
     if (!isLast) return null;
     const chips = [
@@ -533,32 +465,29 @@ export default function Onboarding({ onComplete }) {
       { key: "cookTime", icon: "fa-clock" },
     ];
     return (
-      <div className="ob-summary">
-        <div className="ob-summary-hd">
+      <div className="up-summary">
+        <div className="up-summary-hd">
           <FAIcon name="fa-wand-magic-sparkles" />
-          Your taste profile is set!
+          Your taste profile is ready!
         </div>
-        <div className="ob-summary-chips">
+        <div className="up-summary-chips">
           {prefs.name && (
-            <span className="ob-s-chip">
-              <FAIcon name="fa-user" /> {prefs.name}
-            </span>
+            <span className="up-chip"><FAIcon name="fa-user" /> {prefs.name}</span>
           )}
           {chips.map(({ key, icon }) => {
             const v = prefs[key];
             if (!v) return null;
-            // Handle both single object and array (multi-select fields)
             const label = Array.isArray(v)
               ? v.map((x) => x.label).join(", ")
               : typeof v === "object" ? v.label : v;
             return (
-              <span className="ob-s-chip" key={key}>
+              <span className="up-chip" key={key}>
                 <FAIcon name={icon} /> {label}
               </span>
             );
           })}
           {(prefs.cuisines || []).length > 0 && (
-            <span className="ob-s-chip">
+            <span className="up-chip">
               <FAIcon name="fa-utensils" /> {prefs.cuisines.length} cuisines
             </span>
           )}
@@ -567,76 +496,122 @@ export default function Onboarding({ onComplete }) {
     );
   };
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="ob-root">
-      <div className="ob-bg-grid" />
-      <div className="ob-blob ob-b1" />
-      <div className="ob-blob ob-b2" />
+    <>
+      {/* Backdrop */}
+      <div className="up-overlay" />
 
-      <header className="ob-header">
-        <div className="ob-logo">
-          <FAIcon name="fa-kitchen-set" className="ob-logo-fa" />
-          <span>Kitchen Buddy</span>
-        </div>
-        <button className="ob-skip" type="button" onClick={() => onComplete?.(prefs)}>
-          Skip for now
-        </button>
-      </header>
+      {/* Two-panel shell */}
+      <div className="up-shell">
 
-      <div className="ob-prog-track">
-        <div className="ob-prog-fill" style={{ width: `${progress}%` }} />
-      </div>
-
-      <div className="ob-dots-row">
-        {STEPS.map((s, i) => (
-          <div
-            key={s.id}
-            className={`ob-dot ${i === idx ? "cur" : i < idx ? "done" : ""}`}
-          />
-        ))}
-      </div>
-
-      <div key={animKey} className={`ob-main-card anim-${animDir}`}>
-        <div className="ob-ch">
-          <div className="ob-ch-badge">
-            <FAIcon name={step.icon} />
-            <span>Step {idx + 1} of {STEPS.length}</span>
+        {/* ── Sidebar ── */}
+        <aside className="up-sidebar">
+          <div className="up-sidebar-logo">
+            <i className="fa-solid fa-kitchen-set" aria-hidden="true" />
+            <span>Kitchen Buddy</span>
           </div>
-          <h2 className="ob-ch-title">{step.title}</h2>
-          <p className="ob-ch-sub">{step.subtitle}</p>
-        </div>
 
-        <div className="ob-cb">
-          {renderBody()}
-          {renderSummary()}
-        </div>
+          <div className="up-sidebar-title">
+            {isModal ? "Edit your profile" : "Build your taste profile"}
+          </div>
+          <p className="up-sidebar-sub">
+            {isModal
+              ? "Update any preference. Changes are saved when you finish."
+              : "Just a few questions so we can personalise every recipe for you."}
+          </p>
 
-        <div className="ob-cf">
-          <button
-            type="button"
-            className="ob-btn-back"
-            onClick={back}
-            disabled={idx === 0}
-          >
-            <FAIcon name="fa-arrow-left" /> Back
-          </button>
+          {/* Clickable step list */}
+          <nav className="up-step-nav">
+            {STEPS.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                className={`up-step-btn${i === idx ? " cur" : i < idx ? " done" : ""}`}
+                onClick={() => go(i > idx ? "fwd" : "bck", () => setIdx(i))}
+              >
+                <span className="up-step-dot">
+                  {i < idx
+                    ? <i className="fa-solid fa-check" aria-hidden="true" />
+                    : <span>{i + 1}</span>}
+                </span>
+                <span className="up-step-label">{s.title}</span>
+              </button>
+            ))}
+          </nav>
 
-          <span className="ob-frac">{idx + 1} / {STEPS.length}</span>
+          <div className="up-sidebar-footer">
+            <div className="up-prog-bar">
+              <div className="up-prog-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <span className="up-prog-label">{idx + 1} of {STEPS.length} complete</span>
+          </div>
+        </aside>
 
-          <button
-            type="button"
-            className={`ob-btn-next ${!canNext() ? "dis" : ""} ${isLast ? "fin" : ""}`}
-            onClick={next}
-            disabled={!canNext()}
-          >
-            {loading
-              ? <><FAIcon name="fa-circle-notch fa-spin" /> Loading…</>
-              : isLast
-                ? <><FAIcon name="fa-rocket" /> Start Cooking!</>
-                : <>Continue <FAIcon name="fa-arrow-right" /></>}
-          </button>
-        </div>
+        {/* ── Main panel ── */}
+        <main className="up-main">
+          {/* Top-right close / skip button */}
+          <div className="up-topbar">
+            <button
+              type="button"
+              className="up-close-btn"
+              onClick={() => onComplete?.(prefs)}
+            >
+              <i
+                className={`fa-solid ${isModal ? "fa-xmark" : "fa-forward"}`}
+                aria-hidden="true"
+              />
+              <span>{isModal ? "Close" : "Skip for now"}</span>
+            </button>
+          </div>
+
+          {/* Animated step card */}
+          <div key={animKey} className={`up-card anim-${animDir}`}>
+
+            {/* Header */}
+            <div className="up-card-head">
+              <div className="up-step-badge">
+                <FAIcon name={step.icon} />
+                <span>Step {idx + 1} of {STEPS.length}</span>
+              </div>
+              <h2 className="up-card-title">{step.title}</h2>
+              <p className="up-card-sub">{step.subtitle}</p>
+            </div>
+
+            {/* Body */}
+            <div className="up-card-body">
+              {renderBody()}
+              {renderSummary()}
+            </div>
+
+            {/* Footer nav */}
+            <div className="up-card-foot">
+              <button
+                type="button"
+                className="up-btn-back"
+                onClick={back}
+                disabled={idx === 0}
+              >
+                <FAIcon name="fa-arrow-left" /> Back
+              </button>
+
+              <button
+                type="button"
+                className={`up-btn-next${!canNext() ? " dis" : ""}${isLast ? " fin" : ""}`}
+                onClick={next}
+                disabled={!canNext()}
+              >
+                {loading
+                  ? <><FAIcon name="fa-circle-notch fa-spin" /> Loading…</>
+                  : isLast
+                    ? <><FAIcon name="fa-floppy-disk" /> Save Profile</>
+                    : <>Next <FAIcon name="fa-arrow-right" /></>}
+              </button>
+            </div>
+
+          </div>
+        </main>
       </div>
-    </div>
+    </>
   );
 }

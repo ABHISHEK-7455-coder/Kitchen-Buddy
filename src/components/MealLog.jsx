@@ -3,7 +3,6 @@ import "../pages/styles/MealLog.css";
 
 // ─── localStorage keys ────────────────────────────────────────────────────────
 const LS_SAVED = "meallog_saved_meals";
-const LS_DRAFT = "meallog_draft";
 
 // ─── Empty meal template ──────────────────────────────────────────────────────
 const EMPTY_MEAL = {
@@ -28,10 +27,6 @@ const ls = {
     set: (key, value) => {
         try { localStorage.setItem(key, JSON.stringify(value)); }
         catch { /* quota / SSR */ }
-    },
-    remove: (key) => {
-        try { localStorage.removeItem(key); }
-        catch { /* noop */ }
     },
 };
 
@@ -176,7 +171,8 @@ function SavedMealsDrawer({ savedMeals, onSelect, onDelete, onClose }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function MealLog() {
-    const [meal, setMeal] = useState(() => ls.get(LS_DRAFT, { ...EMPTY_MEAL }));
+    // Form always starts empty — only populates when user loads a saved meal
+    const [meal, setMeal] = useState({ ...EMPTY_MEAL });
     const [savedMeals, setSavedMeals] = useState(() => ls.get(LS_SAVED, []));
     const [newIngredient, setNewIngredient] = useState("");
     const [showIngredientInput, setShowIngredientInput] = useState(false);
@@ -184,10 +180,7 @@ export default function MealLog() {
     const [showImageModal, setShowImageModal] = useState(false);
     const [saveStatus, setSaveStatus] = useState("idle"); // "idle" | "saved" | "updated"
 
-    // Persist draft to localStorage on every meal change
-    useEffect(() => { ls.set(LS_DRAFT, meal); }, [meal]);
-
-    // Persist saved meals list
+    // Persist saved meals list whenever it changes
     useEffect(() => { ls.set(LS_SAVED, savedMeals); }, [savedMeals]);
 
     // ── Field helpers ─────────────────────────────────────────────────────────────
@@ -243,19 +236,16 @@ export default function MealLog() {
     // ── Delete saved meal ─────────────────────────────────────────────────────────
     const deleteMeal = (id) => {
         setSavedMeals((prev) => prev.filter((m) => m.id !== id));
+        // If the currently loaded meal is deleted, reset the form to empty
         if (meal.id === id) {
-            const empty = { ...EMPTY_MEAL };
-            setMeal(empty);
-            ls.remove(LS_DRAFT);
+            setMeal({ ...EMPTY_MEAL });
             setSaveStatus("idle");
         }
     };
 
-    // ── Discard ───────────────────────────────────────────────────────────────────
+    // ── Discard / Clear ───────────────────────────────────────────────────────────
     const handleDiscard = () => {
-        const empty = { ...EMPTY_MEAL };
-        setMeal(empty);
-        ls.remove(LS_DRAFT);
+        setMeal({ ...EMPTY_MEAL });
         setSaveStatus("idle");
     };
 
@@ -290,6 +280,11 @@ export default function MealLog() {
                         </p>
                     </div>
                     <div className="header-actions">
+                        <button className="btn-discard" onClick={handleDiscard}>Clear</button>
+                        <button
+                            className={`meal-btn-save ${saveStatus !== "idle" ? "success" : ""}`}
+                            onClick={handleSave}
+                        >Save Meal</button>
                         <button
                             className="btn-saved-meals"
                             onClick={() => setShowDrawer(true)}
@@ -297,11 +292,6 @@ export default function MealLog() {
                             📋 Saved Meals
                             {savedMeals.length > 0 && <span className="saved-count">{savedMeals.length}</span>}
                         </button>
-                        <button className="btn-discard" onClick={handleDiscard}>Discard</button>
-                        <button
-                            className={`meal-btn-save ${saveStatus !== "idle" ? "success" : ""}`}
-                            onClick={handleSave}
-                        >Save Meal</button>
                     </div>
                 </div>
 
@@ -473,7 +463,6 @@ export default function MealLog() {
 
                                         <div className={`step-content ${step.status}`}>
                                             <div className="step-top">
-                                                {/* ── FIX: textarea so full step text wraps instead of being cut off ── */}
                                                 <textarea
                                                     className={`step-name-input ${step.status === "pending" ? "pending-text" : ""}`}
                                                     value={step.name}

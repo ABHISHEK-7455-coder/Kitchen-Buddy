@@ -11,75 +11,46 @@ import AIFoodFeed from "./pages/AIFoodFeed";
 import IngredientSuggest from "./pages/IngredientSuggest";
 
 function App() {
-  // ── Onboarding ────────────────────────────────────────────────────────────
-  const [onboardingDone, setOnboardingDone] = useState(() =>
-    !!localStorage.getItem("kitchenBuddyPrefs")
+  const [profileOpen, setProfileOpen] = useState(
+    () => !localStorage.getItem("kitchenBuddyPrefs")
   );
+  const openProfile = () => setProfileOpen(true);
+  const closeProfile = () => setProfileOpen(false);
 
-  // ── Shared meal plans — single source of truth ────────────────────────────
-  // Shape: { "2024-03-14": { Breakfast: {name, time, ...}, Lunch: {...}, Dinner: {...} } }
   const [mealPlans, setMealPlans] = useState(() => {
     try {
       const saved = localStorage.getItem("mealPlans");
       return saved ? JSON.parse(saved) : {};
-    } catch (e) {
-      return {};
-    }
+    } catch { return {}; }
   });
 
-  // Persist every change to localStorage
   useEffect(() => {
     localStorage.setItem("mealPlans", JSON.stringify(mealPlans));
   }, [mealPlans]);
 
-  // Add / update a single meal slot
-  // dateKey: "2024-03-14"   mealType: "Breakfast" | "Lunch" | "Dinner"
-  // meal: { name, time, calories, cuisine, description, ingredients, steps, isVeg, ... }
-  const addMeal = (dateKey, mealType, meal) => {
+  const addMeal = (dateKey, mealType, meal) =>
     setMealPlans((prev) => ({
       ...prev,
-      [dateKey]: {
-        ...(prev[dateKey] || {}),
-        [mealType]: meal,
-      },
+      [dateKey]: { ...(prev[dateKey] || {}), [mealType]: meal },
     }));
-  };
 
-  if (!onboardingDone) {
-    return <Onboarding onComplete={() => setOnboardingDone(true)} />;
-  }
+  // Single reusable Navbar with openProfile always wired
+  const Nav = () => <Navbar onOpenProfile={openProfile} />;
 
   return (
     <BrowserRouter>
+      {profileOpen && <Onboarding onComplete={closeProfile} isModal />}
+
       <Routes>
-        {/* ── HomePage now receives mealPlans + addMeal so MealPlan can sync ── */}
-        <Route path="/" element={<HomePage mealPlans={mealPlans} addMeal={addMeal} />} />
+        {/* HomePage has its OWN Navbar inside — do NOT add <Nav /> here */}
+        <Route path="/" element={<HomePage mealPlans={mealPlans} addMeal={addMeal} onOpenProfile={openProfile} />} />
 
-        {/* AI Feed — passes addMeal so it can sync to planner */}
-        <Route
-          path="/ai"
-          element={
-            <>
-              <Navbar />
-              <AIFoodFeed addMeal={addMeal} mealPlans={mealPlans} />
-            </>
-          }
-        />
-
-        {/* Planner — receives the same mealPlans + addMeal */}
-        <Route
-          path="/planner"
-          element={
-            <>
-              <Navbar />
-              <CalendarView mealPlans={mealPlans} addMeal={addMeal} />
-            </>
-          }
-        />
-
-        <Route path="/ingredients" element={<><Navbar /><IngredientSuggest addMeal={addMeal} mealPlans={mealPlans} /></>} />
-        <Route path="/pantry" element={<><Navbar /><PantryInventory /></>} />
-        <Route path="/meal-log" element={<><Navbar /><MealLog /></>} />
+        {/* These pages do NOT have an internal Navbar — <Nav /> is added here */}
+        <Route path="/ai" element={<><Nav /><AIFoodFeed addMeal={addMeal} mealPlans={mealPlans} /></>} />
+        <Route path="/planner" element={<><Nav /><CalendarView mealPlans={mealPlans} addMeal={addMeal} /></>} />
+        <Route path="/ingredients" element={<><Nav /><IngredientSuggest addMeal={addMeal} mealPlans={mealPlans} /></>} />
+        <Route path="/pantry" element={<><Nav /><PantryInventory /></>} />
+        <Route path="/meal-log" element={<><Nav /><MealLog /></>} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

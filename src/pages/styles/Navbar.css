@@ -131,6 +131,53 @@
     border: 2px solid var(--border);
 }
 
+/* ── Add these rules to your existing Navbar.css ─────────────────────────────
+   They style the clickable avatar button in the navbar.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Wraps the emoji + optional name */
+.navbar__avatar-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 5px 5px 5px;
+    border-radius: 24px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    font-family: inherit;
+}
+
+.navbar__avatar-btn:hover {
+    border-color: var(--brand, #e8622a);
+    background: rgba(232, 98, 42, .06);
+}
+
+/* The emoji stays the same size */
+.navbar__avatar {
+    font-size: 22px;
+    line-height: 1;
+}
+
+/* Short first name shown beside avatar on desktop */
+.navbar__avatar-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #5a4a3e;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Hide the name label on small screens */
+@media (max-width: 680px) {
+    .navbar__avatar-name {
+        display: none;
+    }
+}
+
 /* ══════════════════════════════════════════════
    NAVBAR — MOBILE RESPONSIVE
 ══════════════════════════════════════════════ */
@@ -230,5 +277,7 @@
 }
 
 @media (max-width: 480px) {
-    .navbar{display: none;}
+    .navbar {
+        display: none;
+    }
 }

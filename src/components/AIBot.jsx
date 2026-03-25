@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import "../pages/styles/AIBot.css";
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+const SPOONACULAR_API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY;
 
 const LS_SAVED_MEALS = "meallog_saved_meals";
 const LS_DRAFT = "meallog_draft";
@@ -20,22 +21,9 @@ function todayKey() {
         String(d.getDate()).padStart(2, "0");
 }
 
-var IMG_CACHE = {};
+// ─── Image System (Spoonacular) ───────────────────────────────────────────────
 
-var FOODISH_MAP = {
-    "biryani": "biryani", "rice": "biryani", "pulao": "biryani",
-    "burger": "burger", "sandwich": "burger",
-    "butter chicken": "butter-chicken", "murgh makhani": "butter-chicken", "chicken curry": "butter-chicken",
-    "roti": "chapati", "chapati": "chapati", "paratha": "chapati", "naan": "chapati",
-    "dal makhani": "dal-makhani", "dal": "dal-makhani", "lentil": "dal-makhani",
-    "dosa": "dosa", "idli": "idly", "idly": "idly",
-    "fried rice": "fried-rice", "noodles": "fried-rice",
-    "paneer": "kadai-paneer", "kadai": "kadai-paneer", "palak": "kadai-paneer",
-    "pakoda": "pakode", "pakora": "pakode",
-    "pasta": "pasta", "spaghetti": "pasta", "pizza": "pizza",
-    "pav bhaji": "pav-bhaji", "bhaji": "pav-bhaji",
-    "samosa": "samosa", "upma": "upma", "poha": "upma",
-};
+var IMG_CACHE = {};
 
 var FALLBACKS = [
     "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=300&fit=crop",
@@ -54,46 +42,49 @@ function getFallback(name) {
     return FALLBACKS[Math.abs(h) % FALLBACKS.length];
 }
 
-function getFoodishCategory(name) {
-    var n = (name || "").toLowerCase();
-    for (var key in FOODISH_MAP) { if (n.indexOf(key) !== -1) return FOODISH_MAP[key]; }
-    return null;
-}
-
+/**
+ * Fetch a food image from Spoonacular's recipe search.
+ * Endpoint: GET /recipes/complexSearch?query=<dish>&number=1&addRecipeInformation=false
+ * Returns the first recipe's image URL, or falls back to a static photo.
+ */
 function fetchDishImageAsync(name, imgSearch) {
-    if (IMG_CACHE.hasOwnProperty(name) && IMG_CACHE[name]) {
-        return Promise.resolve(IMG_CACHE[name]);
+    const cacheKey = name || imgSearch || "unknown";
+
+    if (IMG_CACHE.hasOwnProperty(cacheKey) && IMG_CACHE[cacheKey]) {
+        return Promise.resolve(IMG_CACHE[cacheKey]);
     }
-    const cat = getFoodishCategory(name);
-    const tryFoodish = cat
-        ? fetch("https://foodish-api.com/api/images/" + cat)
-            .then(r => r.json())
-            .then(d => (d && d.image) ? d.image : null)
-            .catch(() => null)
-        : Promise.resolve(null);
 
-    const tryUnsplash = () => {
-        const key = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
-        if (!key || key === "undefined") return Promise.resolve(null);
-        const q = encodeURIComponent((imgSearch || name) + " food dish");
-        return fetch("https://api.unsplash.com/search/photos?query=" + q + "&per_page=1&orientation=landscape&client_id=" + key)
-            .then(r => r.json())
-            .then(d => {
-                const url = d?.results?.[0]?.urls?.raw;
-                return url ? url + "&w=400&h=300&fit=crop&auto=format&q=80" : null;
-            })
-            .catch(() => null);
-    };
+    if (!SPOONACULAR_API_KEY || SPOONACULAR_API_KEY === "undefined") {
+        const fallback = getFallback(cacheKey);
+        IMG_CACHE[cacheKey] = fallback;
+        return Promise.resolve(fallback);
+    }
 
-    return tryFoodish.then(url => {
-        if (url) { IMG_CACHE[name] = url; return url; }
-        return tryUnsplash().then(u => {
-            const final = u || getFallback(name);
-            IMG_CACHE[name] = final;
+    const query = encodeURIComponent(imgSearch || name || "food");
+    const url =
+        "https://api.spoonacular.com/recipes/complexSearch?query=" +
+        query +
+        "&number=1&apiKey=" +
+        SPOONACULAR_API_KEY;
+
+    return fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            const result = data?.results?.[0];
+            // Spoonacular returns full image URLs directly in complexSearch
+            const imgUrl = result?.image || null;
+            const final = imgUrl || getFallback(cacheKey);
+            IMG_CACHE[cacheKey] = final;
             return final;
+        })
+        .catch(() => {
+            const fallback = getFallback(cacheKey);
+            IMG_CACHE[cacheKey] = fallback;
+            return fallback;
         });
-    });
 }
+
+// ─── Meal Log / Calendar helpers ──────────────────────────────────────────────
 
 async function saveToMealLog(dish, mealType) {
     const imageUrl = await fetchDishImageAsync(dish.name, dish.imgSearch).catch(() => getFallback(dish.name));
@@ -144,6 +135,8 @@ function saveToCalendar(dish, mealType, dateKey, addMeal) {
         ls.set(LS_MEAL_PLANS, plans);
     }
 }
+
+// ─── Groq ─────────────────────────────────────────────────────────────────────
 
 function askGroq(messages) {
     return fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -220,7 +213,7 @@ DISH OBJECT shape (for suggest and add_meal):
   "difficulty": "Easy",
   "isVeg": true,
   "calories": "350 kcal",
-  "imgSearch": "2-3 word food photography term e.g. 'paneer curry bowl'",
+  "imgSearch": "2-3 word search term matching a real recipe on Spoonacular e.g. 'paneer curry' or 'chicken biryani'",
   "ingredients": ["2 cups basmati rice","1 cup paneer cubed","2 tbsp oil","1 tsp cumin seeds","1 onion finely chopped","2 tomatoes pureed","1 tsp garam masala"],
   "steps": [
     "Heat 2 tbsp oil in a deep pan over medium flame, add 1 tsp cumin seeds and let them splutter for 30 seconds until fragrant.",
@@ -246,7 +239,7 @@ Today's date: ${todayKey()}`;
 
 // ─── Dish Detail Modal ────────────────────────────────────────────────────────
 function DishDetailModal({ dish, mealType, onAdd, onClose }) {
-    const [imgSrc, setImgSrc] = useState(null);
+    const [imgSrc, setImgSrc] = useState(getFallback(dish.name));
     const [activeTab, setActiveTab] = useState("ingredients");
 
     useEffect(() => {
@@ -361,7 +354,7 @@ function TypingIndicator() {
     );
 }
 
-// ─── Dish chip — name is now clickable ────────────────────────────────────────
+// ─── Dish chip ────────────────────────────────────────────────────────────────
 function DishChip({ dish, mealType, onAdd, onViewDetail }) {
     return (
         <div className="bot-dish-chip">
@@ -426,7 +419,7 @@ export default function AIBot({ addMeal }) {
     const [loading, setLoading] = useState(false);
     const [listening, setListening] = useState(false);
     const [unread, setUnread] = useState(0);
-    const [detailDish, setDetailDish] = useState(null); // { dish, mealType }
+    const [detailDish, setDetailDish] = useState(null);
 
     const historyRef = useRef([]);
     const bottomRef = useRef(null);
@@ -562,7 +555,6 @@ export default function AIBot({ addMeal }) {
 
     return (
         <>
-            {/* Dish detail modal — outside bot-panel so it overlays the whole page */}
             {detailDish && (
                 <DishDetailModal
                     dish={detailDish.dish}
