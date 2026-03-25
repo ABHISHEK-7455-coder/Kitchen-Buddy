@@ -7,10 +7,6 @@ var GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 var SPOONACULAR_API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY;
 
 // ─── IMAGE SYSTEM (Spoonacular) ───────────────────────────────────────────────
-// Strategy:
-// 1. Spoonacular /recipes/complexSearch — real food photos matched to dish name
-// 2. Static fallback — curated Unsplash food photos (unique per dish name)
-
 var IMG_CACHE = {};
 
 var FALLBACKS = [
@@ -38,48 +34,25 @@ function getFallback(name) {
   return FALLBACKS[Math.abs(h) % FALLBACKS.length];
 }
 
-/**
- * Fetch a food image from Spoonacular's complexSearch endpoint.
- * Uses imgSearch (AI-generated 2-3 word term) for best match accuracy.
- * Falls back to a static photo if API key is missing or call fails.
- *
- * Spoonacular complexSearch returns:
- *   { results: [{ id, title, image }] }
- * where image is a full URL like:
- *   https://img.spoonacular.com/recipes/716429-312x231.jpg
- */
 function fetchDishImage(dishName, imgSearch, callback) {
   var cacheKey = dishName || imgSearch || "unknown";
-
-  // Return cached result immediately if available
-  if (IMG_CACHE.hasOwnProperty(cacheKey)) {
-    callback(IMG_CACHE[cacheKey]); return;
-  }
-
-  // No API key → use fallback right away
+  if (IMG_CACHE.hasOwnProperty(cacheKey)) { callback(IMG_CACHE[cacheKey]); return; }
   if (!SPOONACULAR_API_KEY || SPOONACULAR_API_KEY === "undefined") {
-    var fb = getFallback(cacheKey);
-    IMG_CACHE[cacheKey] = fb;
-    callback(fb); return;
+    var fb = getFallback(cacheKey); IMG_CACHE[cacheKey] = fb; callback(fb); return;
   }
-
   var query = encodeURIComponent(imgSearch || dishName || "food");
   var url = "https://api.spoonacular.com/recipes/complexSearch?query=" + query
     + "&number=1&apiKey=" + SPOONACULAR_API_KEY;
-
   fetch(url)
     .then(function (r) { return r.json(); })
     .then(function (data) {
       var result = data && data.results && data.results[0];
       var imgUrl = result && result.image ? result.image : null;
       var final = imgUrl || getFallback(cacheKey);
-      IMG_CACHE[cacheKey] = final;
-      callback(final);
+      IMG_CACHE[cacheKey] = final; callback(final);
     })
     .catch(function () {
-      var fb = getFallback(cacheKey);
-      IMG_CACHE[cacheKey] = fb;
-      callback(fb);
+      var fb = getFallback(cacheKey); IMG_CACHE[cacheKey] = fb; callback(fb);
     });
 }
 
@@ -89,30 +62,16 @@ function DishImage(props) {
   var name = dish.name || "";
   var imgSearch = dish.imgSearch || name;
   var cls = props.className || "";
-
-  // Show fallback immediately while Spoonacular loads
-  var initSrc = (IMG_CACHE.hasOwnProperty(name) && IMG_CACHE[name])
-    ? IMG_CACHE[name]
-    : getFallback(name);
-
-  var s = useState(initSrc);
-  var src = s[0]; var setSrc = s[1];
+  var initSrc = (IMG_CACHE.hasOwnProperty(name) && IMG_CACHE[name]) ? IMG_CACHE[name] : getFallback(name);
+  var s = useState(initSrc); var src = s[0]; var setSrc = s[1];
   var fetchedRef = useRef(false);
-
   useEffect(function () {
     if (!name) return;
-    // Already cached — just apply it
-    if (IMG_CACHE.hasOwnProperty(name) && IMG_CACHE[name]) {
-      setSrc(IMG_CACHE[name]); return;
-    }
+    if (IMG_CACHE.hasOwnProperty(name) && IMG_CACHE[name]) { setSrc(IMG_CACHE[name]); return; }
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-
-    fetchDishImage(name, imgSearch, function (url) {
-      if (url) setSrc(url);
-    });
+    fetchDishImage(name, imgSearch, function (url) { if (url) setSrc(url); });
   }, [name]);
-
   return (
     <img src={src} alt={name} className={cls} loading="lazy"
       onError={function (e) { e.target.onerror = null; e.target.src = getFallback(name); }} />
@@ -165,50 +124,34 @@ function SkeletonCard(props) {
 
 // ─── Add to Plan Picker Modal ─────────────────────────────────────────────────
 function AddToPlanModal(props) {
-  var dish = props.dish;
-  var mealPlans = props.mealPlans;
-  var onConfirm = props.onConfirm;
-  var onClose = props.onClose;
-
+  var dish = props.dish; var mealPlans = props.mealPlans;
+  var onConfirm = props.onConfirm; var onClose = props.onClose;
   var days = [];
   for (var i = 0; i < 7; i++) {
-    var d = new Date();
-    d.setDate(d.getDate() + i);
+    var d = new Date(); d.setDate(d.getDate() + i);
     var dateKey = d.toISOString().split("T")[0];
     var label = i === 0 ? "Today" : i === 1 ? "Tomorrow"
       : d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
     days.push({ dateKey: dateKey, label: label });
   }
-
-  var ds = useState(days[0].dateKey);
-  var selectedDate = ds[0]; var setSelectedDate = ds[1];
-
-  var ms = useState("Breakfast");
-  var selectedMeal = ms[0]; var setSelectedMeal = ms[1];
-
+  var ds = useState(days[0].dateKey); var selectedDate = ds[0]; var setSelectedDate = ds[1];
+  var ms = useState("Breakfast"); var selectedMeal = ms[0]; var setSelectedMeal = ms[1];
   var MEAL_TYPES = [
     { key: "Breakfast", icon: "fa-sun", color: "#f59e0b" },
     { key: "Lunch", icon: "fa-cloud-sun", color: "#10b981" },
     { key: "Dinner", icon: "fa-moon", color: "#6366f1" },
   ];
-
   function isSlotTaken(dateKey, mealType) {
     return mealPlans && mealPlans[dateKey] && mealPlans[dateKey][mealType] && mealPlans[dateKey][mealType].name;
   }
-
   function handleConfirm() { onConfirm(selectedDate, selectedMeal, dish); onClose(); }
-
   useEffect(function () { document.body.style.overflow = "hidden"; return function () { document.body.style.overflow = ""; }; }, []);
-
   return (
     <div className="atp-backdrop" onClick={onClose}>
       <div className="atp-modal" onClick={function (e) { e.stopPropagation(); }}>
-
         <div className="atp-header">
           <div className="atp-dish-info">
-            <div className="atp-dish-img">
-              <DishImage dish={dish} className="atp-dish-img-el" />
-            </div>
+            <div className="atp-dish-img"><DishImage dish={dish} className="atp-dish-img-el" /></div>
             <div>
               <p className="atp-dish-label">Adding to plan</p>
               <h3 className="atp-dish-name">{dish.name}</h3>
@@ -224,7 +167,6 @@ function AddToPlanModal(props) {
           </div>
           <button className="atp-close" type="button" onClick={onClose}><Icon n="fa-xmark" /></button>
         </div>
-
         <div className="atp-section">
           <p className="atp-section-label"><Icon n="fa-calendar" /> Choose Day</p>
           <div className="atp-day-list">
@@ -234,14 +176,12 @@ function AddToPlanModal(props) {
                 <button key={day.dateKey} type="button"
                   className={"atp-day-btn " + (selectedDate === day.dateKey ? "active" : "") + (allTaken ? " full" : "")}
                   onClick={function () { setSelectedDate(day.dateKey); }}>
-                  {day.label}
-                  {allTaken && <span className="atp-full-tag">Full</span>}
+                  {day.label}{allTaken && <span className="atp-full-tag">Full</span>}
                 </button>
               );
             })}
           </div>
         </div>
-
         <div className="atp-section">
           <p className="atp-section-label"><Icon n="fa-utensils" /> Choose Meal Slot</p>
           <div className="atp-meal-types">
@@ -249,8 +189,7 @@ function AddToPlanModal(props) {
               var taken = isSlotTaken(selectedDate, m.key);
               var takenName = taken && mealPlans[selectedDate] && mealPlans[selectedDate][m.key] && mealPlans[selectedDate][m.key].name;
               return (
-                <button key={m.key} type="button"
-                  style={{ "--slot-color": m.color }}
+                <button key={m.key} type="button" style={{ "--slot-color": m.color }}
                   className={"atp-meal-btn " + (selectedMeal === m.key ? "active" : "") + (taken ? " taken" : "")}
                   onClick={function () { setSelectedMeal(m.key); }}>
                   <Icon n={m.icon} cls="atp-meal-icon" />
@@ -263,17 +202,13 @@ function AddToPlanModal(props) {
             })}
           </div>
           {isSlotTaken(selectedDate, selectedMeal) && (
-            <p className="atp-replace-warn">
-              <Icon n="fa-triangle-exclamation" /> This will replace the existing meal
-            </p>
+            <p className="atp-replace-warn"><Icon n="fa-triangle-exclamation" /> This will replace the existing meal</p>
           )}
         </div>
-
         <div className="atp-footer">
           <button className="atp-cancel" type="button" onClick={onClose}>Cancel</button>
           <button className="atp-confirm" type="button" onClick={handleConfirm}>
-            <Icon n="fa-calendar-plus" />
-            Add {dish.name} to {selectedMeal}
+            <Icon n="fa-calendar-plus" /> Add {dish.name} to {selectedMeal}
           </button>
         </div>
       </div>
@@ -283,23 +218,16 @@ function AddToPlanModal(props) {
 
 // ─── Share Modal ──────────────────────────────────────────────────────────────
 function ShareModal(props) {
-  var dish = props.dish;
-  var onClose = props.onClose;
-
+  var dish = props.dish; var onClose = props.onClose;
   var copied = useState(false); var isCopied = copied[0]; var setCopied = copied[1];
-
   useEffect(function () { document.body.style.overflow = "hidden"; return function () { document.body.style.overflow = ""; }; }, []);
-
   if (!dish) return null;
-
   var shareText = "🍽️ Check out this dish: " + dish.name + "\n"
     + "🕐 " + dish.time + "  |  🔥 " + (dish.nutrition && dish.nutrition.calories || "") + "  |  " + dish.difficulty + "\n"
     + "📝 " + (dish.description || "") + "\n"
     + "\n🥘 Ingredients: " + (dish.ingredients ? dish.ingredients.slice(0, 5).join(", ") : "") + "\n"
     + "\nFound on Kitchen Buddy 🍳";
-
   var encodedText = encodeURIComponent(shareText);
-
   var platforms = [
     { name: "WhatsApp", icon: "fa-whatsapp", color: "#25D366", bg: "rgba(37,211,102,.12)", url: "https://wa.me/?text=" + encodedText },
     { name: "Telegram", icon: "fa-telegram", color: "#2AABEE", bg: "rgba(42,171,238,.12)", url: "https://t.me/share/url?url=" + encodeURIComponent(window.location.href) + "&text=" + encodedText },
@@ -308,53 +236,41 @@ function ShareModal(props) {
     { name: "Facebook", icon: "fa-facebook", color: "#1877F2", bg: "rgba(24,119,242,.12)", url: "https://www.facebook.com/sharer/sharer.php?quote=" + encodedText },
     { name: "Email", icon: "fa-envelope", color: "#e8622a", bg: "rgba(232,98,42,.12)", url: "mailto:?subject=" + encodeURIComponent("Try this recipe: " + dish.name) + "&body=" + encodedText },
   ];
-
   function handleShare(platform) {
     if (platform.url) { window.open(platform.url, "_blank", "noopener,noreferrer"); }
     else { navigator.clipboard.writeText(shareText).then(function () { setCopied(true); setTimeout(function () { setCopied(false); }, 2500); }); }
   }
-
   function handleCopyLink() {
     navigator.clipboard.writeText(shareText).then(function () { setCopied(true); setTimeout(function () { setCopied(false); }, 2500); });
   }
-
   function handleNativeShare() {
     if (navigator.share) { navigator.share({ title: dish.name, text: shareText }).catch(function () { }); }
   }
-
   return (
     <div className="share-backdrop" onClick={onClose}>
       <div className="share-modal" onClick={function (e) { e.stopPropagation(); }}>
         <div className="share-header">
           <div className="share-dish-preview">
-            <div className="share-dish-thumb">
-              <DishImage dish={dish} className="share-thumb-img" />
-            </div>
+            <div className="share-dish-thumb"><DishImage dish={dish} className="share-thumb-img" /></div>
             <div>
               <p className="share-label">Share this dish</p>
               <h3 className="share-dish-name">{dish.name}</h3>
-              <p className="share-dish-meta">
-                <Icon n="fa-clock" /> {dish.time} &nbsp;·&nbsp;
-                <Icon n="fa-fire" /> {dish.nutrition && dish.nutrition.calories}
-              </p>
+              <p className="share-dish-meta"><Icon n="fa-clock" /> {dish.time} &nbsp;·&nbsp; <Icon n="fa-fire" /> {dish.nutrition && dish.nutrition.calories}</p>
             </div>
           </div>
           <button className="share-close" type="button" onClick={onClose}><Icon n="fa-xmark" /></button>
         </div>
-
         {navigator.share && (
           <button className="share-native-btn" type="button" onClick={handleNativeShare}>
             <Icon n="fa-share-nodes" /> Share via your phone
           </button>
         )}
-
         <p className="share-platforms-label">Share on</p>
         <div className="share-platforms">
           {platforms.map(function (p) {
             return (
               <button key={p.name} type="button" className="share-platform-btn"
-                style={{ "--pc": p.color, "--pb": p.bg }}
-                onClick={function () { handleShare(p); }}>
+                style={{ "--pc": p.color, "--pb": p.bg }} onClick={function () { handleShare(p); }}>
                 <span className="share-platform-icon"><i className={"fa-brands " + p.icon} aria-hidden="true" /></span>
                 <span className="share-platform-name">{p.name}</span>
                 {p.name === "Instagram" && <span className="share-copy-hint">Copies text</span>}
@@ -362,12 +278,10 @@ function ShareModal(props) {
             );
           })}
         </div>
-
         <div className="share-copy-row">
           <div className="share-copy-text-preview">{shareText.slice(0, 80)}...</div>
           <button type="button" className={"share-copy-btn " + (isCopied ? "copied" : "")} onClick={handleCopyLink}>
-            <Icon n={isCopied ? "fa-check" : "fa-copy"} />
-            {isCopied ? "Copied!" : "Copy text"}
+            <Icon n={isCopied ? "fa-check" : "fa-copy"} />{isCopied ? "Copied!" : "Copy text"}
           </button>
         </div>
       </div>
@@ -377,16 +291,11 @@ function ShareModal(props) {
 
 // ─── Dish Card ────────────────────────────────────────────────────────────────
 function DishCard(props) {
-  var dish = props.dish;
-  var index = props.index;
-  var onClick = props.onClick;
-  var onAddPlan = props.onAddPlan;
-  var onShare = props.onShare;
+  var dish = props.dish; var index = props.index; var onClick = props.onClick;
+  var onAddPlan = props.onAddPlan; var onShare = props.onShare;
   var h = HEIGHTS[index % HEIGHTS.length];
-
   function handleAddClick(e) { e.stopPropagation(); onAddPlan(dish); }
   function handleShare(e) { e.stopPropagation(); onShare(dish); }
-
   return (
     <div className="dish-card" style={{ "--card-h": h + "px", animationDelay: (index * 0.06) + "s" }}
       onClick={function () { onClick(dish); }}>
@@ -394,22 +303,14 @@ function DishCard(props) {
         <DishImage dish={dish} className="dish-card-img" />
         <div className="dish-card-overlay" />
       </div>
-
       <div className="dish-card-top">
         <span className={"dish-badge sm " + (dish.isVeg ? "veg" : "nonveg")}>
           <Icon n={dish.isVeg ? "fa-leaf" : "fa-drumstick-bite"} />
           {dish.isVeg ? "Veg" : "Non-Veg"}
         </span>
       </div>
-
-      <button type="button" className="card-add-btn" onClick={handleAddClick} title="Add to Meal Plan">
-        <Icon n="fa-plus" />
-      </button>
-
-      <button type="button" className="card-share-btn" onClick={handleShare} title="Share this dish">
-        <Icon n="fa-share-nodes" />
-      </button>
-
+      <button type="button" className="card-add-btn" onClick={handleAddClick} title="Add to Meal Plan"><Icon n="fa-plus" /></button>
+      <button type="button" className="card-share-btn" onClick={handleShare} title="Share this dish"><Icon n="fa-share-nodes" /></button>
       <div className="dish-card-bottom">
         <span className="dish-card-cuisine">{dish.cuisine}</span>
         <h3 className="dish-card-name">{dish.name}</h3>
@@ -428,24 +329,18 @@ function DishCard(props) {
 
 // ─── Dish Modal ───────────────────────────────────────────────────────────────
 function DishModal(props) {
-  var dish = props.dish;
-  var onClose = props.onClose;
-  var onAddPlan = props.onAddPlan;
-  var onShare = props.onShare || function () { };
-
+  var dish = props.dish; var onClose = props.onClose;
+  var onAddPlan = props.onAddPlan; var onShare = props.onShare || function () { };
   useEffect(function () {
     document.body.style.overflow = "hidden";
     return function () { document.body.style.overflow = ""; };
   }, []);
-
   if (!dish) return null;
   var nutr = dish.nutrition || {};
-
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={function (e) { e.stopPropagation(); }}>
         <button className="modal-close" type="button" onClick={onClose}><Icon n="fa-xmark" /></button>
-
         <div className="modal-img-wrap">
           <DishImage dish={dish} className="modal-img" />
           <div className="modal-img-overlay" />
@@ -458,12 +353,10 @@ function DishModal(props) {
             <span className="dish-badge diff"><Icon n="fa-signal" /> {dish.difficulty}</span>
           </div>
         </div>
-
         <div className="modal-body">
           <div className="modal-cuisine-tag">{dish.cuisine}</div>
           <h2 className="modal-title">{dish.name}</h2>
           <p className="modal-desc">{dish.description}</p>
-
           <div className="modal-nutrition">
             {[
               { icon: "fa-fire", label: "Calories", val: nutr.calories },
@@ -480,7 +373,6 @@ function DishModal(props) {
               );
             })}
           </div>
-
           {dish.ingredients && dish.ingredients.length > 0 && (
             <div className="modal-section">
               <h3 className="modal-section-title"><Icon n="fa-list-ul" /> Ingredients</h3>
@@ -489,7 +381,6 @@ function DishModal(props) {
               </div>
             </div>
           )}
-
           {dish.steps && dish.steps.length > 0 && (
             <div className="modal-section">
               <h3 className="modal-section-title"><Icon n="fa-list-ol" /> How to Cook</h3>
@@ -505,7 +396,6 @@ function DishModal(props) {
               </ol>
             </div>
           )}
-
           <div className="modal-actions">
             <button className="btn-add-plan" type="button" onClick={function () { onAddPlan(dish); onClose(); }}>
               <Icon n="fa-calendar-plus" /> Add to Meal Plan
@@ -540,10 +430,7 @@ function MicButton(props) {
 
 // ─── Success Toast ────────────────────────────────────────────────────────────
 function Toast(props) {
-  useEffect(function () {
-    var t = setTimeout(props.onHide, 3000);
-    return function () { clearTimeout(t); };
-  }, []);
+  useEffect(function () { var t = setTimeout(props.onHide, 3000); return function () { clearTimeout(t); }; }, []);
   return (
     <div className="atp-toast">
       <Icon n="fa-circle-check" cls="toast-icon" />
@@ -560,7 +447,6 @@ export default function AIFoodFeed(props) {
   var prefs = {};
   try { prefs = JSON.parse(localStorage.getItem("kitchenBuddyPrefs") || "{}"); } catch (e) { }
 
-  // ── Persisted state ───────────────────────────────────────────────────────
   var s1 = useState(function () {
     try { return JSON.parse(localStorage.getItem("feed_dishes") || "[]"); } catch (e) { return []; }
   });
@@ -576,7 +462,6 @@ export default function AIFoodFeed(props) {
   });
   var filter = s8[0]; var setFilter = s8[1];
 
-  // ── Non-persisted state ───────────────────────────────────────────────────
   var s2 = useState(false); var loading = s2[0]; var setLoading = s2[1];
   var s3 = useState(""); var errMsg = s3[0]; var setErrMsg = s3[1];
   var s4 = useState(null); var selected = s4[0]; var setSelected = s4[1];
@@ -586,7 +471,6 @@ export default function AIFoodFeed(props) {
   var s10 = useState(""); var toast = s10[0]; var setToast = s10[1];
   var s11 = useState(null); var shareDish = s11[0]; var setShareDish = s11[1];
 
-  // ── Persist to localStorage ───────────────────────────────────────────────
   useEffect(function () { try { localStorage.setItem("feed_dishes", JSON.stringify(dishes)); } catch (e) { } }, [dishes]);
   useEffect(function () { try { localStorage.setItem("feed_query", query); } catch (e) { } }, [query]);
   useEffect(function () { try { localStorage.setItem("feed_filter", filter); } catch (e) { } }, [filter]);
@@ -603,11 +487,9 @@ export default function AIFoodFeed(props) {
   function buildCtx() {
     var lines = [];
     if (prefs.name) lines.push("Name: " + prefs.name);
-    if (prefs.country) lines.push("Country: " + getVal(prefs.country));
     if (prefs.region) lines.push("Region: " + getVal(prefs.region));
     if (prefs.diet) lines.push("Diet: " + getVal(prefs.diet));
     if (prefs.spice) lines.push("Spice: " + getVal(prefs.spice));
-    if (prefs.cuisines) lines.push("Cuisines: " + getVal(prefs.cuisines));
     if (prefs.skill) lines.push("Skill: " + getVal(prefs.skill));
     if (prefs.cookTime) lines.push("Cook time: " + getVal(prefs.cookTime));
     if (prefs.dislikes && prefs.dislikes.length) lines.push("Dislikes: " + getVal(prefs.dislikes));
@@ -619,47 +501,75 @@ export default function AIFoodFeed(props) {
     if (userQuery === undefined) userQuery = "";
     setLoading(true); setErrMsg(""); setDishes([]);
 
+    // ══════════════════════════════════════════════
+    //   INDIAN-ONLY SYSTEM PROMPT
+    // ══════════════════════════════════════════════
     var sys = [
-      "You are Kitchen Buddy's AI chef. Respond ONLY as JSON: {\"dishes\": [...]}",
+      "You are Kitchen Buddy's Indian food AI chef. Respond ONLY as JSON: {\"dishes\": [...]}",
       "",
-      "CRITICAL RULE — Only suggest dishes that are:",
-      "  - Widely recognised and commonly cooked at home",
-      "  - Popular in the user's country/region OR globally famous",
-      "  - Something most people have heard of (NOT obscure, fusion, or chef-only dishes)",
+      "ABSOLUTE RULE — EVERY dish you return MUST be a 100% authentic Indian dish.",
+      "The cuisine field MUST be a specific Indian regional cuisine such as:",
+      "  North Indian, South Indian, Punjabi, Bengali, Rajasthani, Gujarati,",
+      "  Maharashtrian, Hyderabadi, Goan, Kerala, UP, Bihari, Awadhi, Mughlai,",
+      "  Street Food, Sindhi, Kashmiri, Chettinad, Tamil, Telugu, Odia, Assamese, etc.",
       "",
-      "GOOD examples for Indian users: Paneer Butter Masala, Dal Makhani, Aloo Paratha,",
-      "  Chole Bhature, Palak Paneer, Rajma Chawal, Butter Chicken, Biryani, Dosa, Idli,",
-      "  Samosa, Poha, Upma, Maggi, Fried Rice, Pasta, Pizza, Burger, Sandwich, Omelette.",
+      "STRICTLY FORBIDDEN — never suggest these or anything like them:",
+      "  pizza, pasta, burger, sandwich, sushi, tacos, noodles (Chinese), shawarma,",
+      "  caesar salad, steak, fried chicken (American/Western), pancakes, waffles,",
+      "  croissant, quiche, lasagna, risotto, paella, or ANY non-Indian dish.",
+      "  If the user query is vague, ALWAYS default to Indian dishes.",
       "",
-      "BAD examples (never suggest): obscure regional variants, molecular gastronomy,",
-      "  restaurant-only dishes, dishes with 20+ ingredients, made-up fusion names.",
+      "AUTHENTIC INDIAN DISH BANK — draw from these and similar:",
+      "  Breakfast: Poha, Upma, Idli, Dosa, Medu Vada, Aloo Paratha, Puri Bhaji,",
+      "    Chole Bhature, Sabudana Khichdi, Pesarattu, Uttapam, Thepla, Missi Roti,",
+      "    Besan Chilla, Bread Pakora, Rava Dosa, Appam, Puttu, Dhokla, Akki Roti.",
+      "  Lunch/Dinner: Paneer Butter Masala, Dal Makhani, Rajma Chawal, Butter Chicken,",
+      "    Mutton Biryani, Chicken Biryani, Hyderabadi Biryani, Palak Paneer,",
+      "    Shahi Paneer, Dal Tadka, Sarson Ka Saag, Makki Ki Roti, Kadhi Pakora,",
+      "    Baingan Bharta, Aloo Gobi, Matar Paneer, Bhindi Masala, Keema Matar,",
+      "    Fish Curry, Prawn Masala, Rogan Josh, Laal Maas, Pav Bhaji, Kosha Mangsho,",
+      "    Malai Kofta, Dum Aloo, Gongura Mutton, Chettinad Chicken, Sol Kadhi.",
+      "  Snacks/Street: Samosa, Kachori, Pani Puri, Bhel Puri, Sev Puri, Dahi Puri,",
+      "    Vada Pav, Misal Pav, Aloo Tikki, Papdi Chaat, Raj Kachori, Dabeli,",
+      "    Golgappa, Momos (Indian street style), Kathi Roll, Corn Chaat.",
+      "  Sweets/Desserts: Gulab Jamun, Jalebi, Kheer, Halwa, Rasgulla, Sandesh,",
+      "    Ladoo, Barfi, Modak, Shrikhand, Rabri, Phirni, Gajar Ka Halwa, Malpua.",
       "",
       "Each dish needs ALL these fields:",
-      "  id (unique string), name (familiar well-known dish name), cuisine,",
-      "  description (2 mouth-watering sentences),",
-      "  time (realistic like '20 min' or '45 min'),",
+      "  id (unique string), name (authentic Indian dish name),",
+      "  cuisine (Indian regional — e.g. 'Punjabi', 'South Indian', 'Street Food'),",
+      "  description (2 mouth-watering sentences about this specific Indian dish),",
+      "  time (realistic e.g. '20 min' or '45 min'),",
       "  difficulty (Easy or Medium or Hard),",
-      "  isVeg (boolean — always return BOTH veg and non-veg),",
-      "  nutrition: {calories, protein, carbs, fat} all strings,",
-      "  ingredients (6-8 common household ingredients),",
-      "  steps (4-6 simple steps),",
-      "  tags (2-3 strings),",
-      "  imgSearch: 2-3 word search term that matches a real recipe on Spoonacular.",
-      "    Good: 'paneer curry', 'chicken biryani', 'chocolate cake', 'caesar salad'.",
-      "    Use the most common English name for the dish, not a description.",
-      "    Never use abstract or poetic terms — use the actual dish name.",
+      "  isVeg (boolean),",
+      "  nutrition: {calories, protein, carbs, fat} all strings with units,",
+      "  ingredients (6-8 common Indian household ingredients with quantities),",
+      "  steps (4-6 clear cooking steps),",
+      "  tags (2-3 strings e.g. 'spicy', 'comfort food', 'street food', 'festive'),",
+      "  imgSearch: 2-3 word English search term that matches a real recipe photo.",
+      "    Use the most recognised English name: 'paneer butter masala',",
+      "    'chicken biryani', 'gulab jamun', 'masala dosa', 'dal makhani', 'samosa'.",
       "",
-      "Return exactly 6 veg (isVeg:true) + 6 non-veg (isVeg:false) = 12 total."
+      "Return exactly 6 veg (isVeg:true) + 6 non-veg (isVeg:false) = 12 total.",
+      "Vary regions — do not repeat the same regional cuisine more than twice.",
     ].join("\n");
 
-    var ctx = buildCtx() || "General food lover";
+    var ctx = buildCtx() || "Indian food lover";
     var isSpecificSearch = userQuery && userQuery.trim().length > 0;
+
     var usr = isSpecificSearch
       ? "User profile:\n" + ctx + "\n\n" +
       "User searched for: \"" + userQuery + "\"\n\n" +
-      "Return ONLY dishes that are directly related to \"" + userQuery + "\".\n" +
-      "Return {\"dishes\":[3-5 closely related dishes]}"
-      : "User profile:\n" + ctx + "\n\nSuggest 12 popular, familiar dishes this user would love today.\nMix meals: breakfast, lunch, snacks, dinner.\nReturn {\"dishes\":[12 dishes]}";
+      "Return ONLY authentic Indian dishes related to \"" + userQuery + "\".\n" +
+      "If the query seems non-Indian (e.g. 'pizza'), return the closest Indian equivalent\n" +
+      "(e.g. Tawa Bread Pizza → Bread Uttapam, or Naan Pizza with Indian toppings).\n" +
+      "Return {\"dishes\":[3-5 closely related Indian dishes]}"
+      : "User profile:\n" + ctx + "\n\n" +
+      "Suggest 12 popular, authentic Indian dishes this user would love today.\n" +
+      "Mix meal types: breakfast, lunch, snacks, dinner.\n" +
+      "Mix regions broadly: North Indian, South Indian, street food, regional specialties.\n" +
+      "Include both everyday desi classics AND some lesser-known regional gems.\n" +
+      "Return {\"dishes\":[12 dishes]}";
 
     askGroq(sys, usr)
       .then(function (r) {
@@ -699,7 +609,8 @@ export default function AIFoodFeed(props) {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { alert("Voice input needs Chrome."); return; }
     var rec = new SR();
-    rec.lang = "en-US"; rec.interimResults = true;
+    rec.lang = "en-IN"; // Better recognition for Indian accents
+    rec.interimResults = true;
     rec.onstart = function () { setListening(true); };
     rec.onend = function () { setListening(false); };
     rec.onerror = function () { setListening(false); };
@@ -722,7 +633,16 @@ export default function AIFoodFeed(props) {
     return true;
   });
 
-  var SUGGESTIONS = ["Something quick for breakfast", "High protein lunch", "Comfort food dinner", "Healthy and light", "Street food vibes", "Something spicy"];
+  // Indian-focused suggestion chips
+  var SUGGESTIONS = [
+    "Quick Indian breakfast",
+    "High protein sabzi",
+    "Street food chaat",
+    "Desi comfort dinner",
+    "South Indian thali",
+    "Something spicy 🌶️",
+  ];
+
   var FILTERS = [
     { key: "all", label: "All Dishes", icon: "fa-utensils" },
     { key: "veg", label: "Vegetarian", icon: "fa-leaf" },
@@ -731,15 +651,14 @@ export default function AIFoodFeed(props) {
 
   return (
     <div className="feed-root">
-
       <div className="feed-hero">
         <div className="feed-hero-inner">
           <h1 className="feed-hero-title">What should I cook<span className="feed-hero-accent"> today?</span></h1>
-          <p className="feed-hero-sub">Speak or type — AI finds dishes personalised just for you</p>
+          <p className="feed-hero-sub">Speak or type — AI finds authentic Indian dishes just for you 🇮🇳</p>
           <form className="feed-search-bar" onSubmit={function (e) { e.preventDefault(); if (query.trim()) fetchDishes(query.trim()); }}>
             <Icon n="fa-magnifying-glass" cls="search-icon" />
             <input ref={inputRef} className="feed-search-input"
-              placeholder="Try paneer butter masala or quick breakfast..."
+              placeholder="Try dal makhani, aloo paratha, biryani..."
               value={query} onChange={function (e) { setQuery(e.target.value); }} />
             {query && <button type="button" className="search-clear" onClick={function () { setQuery(""); }}><Icon n="fa-xmark" /></button>}
             <button type="submit" className="search-submit"><Icon n="fa-arrow-right" /></button>

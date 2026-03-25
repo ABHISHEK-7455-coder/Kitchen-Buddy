@@ -42,11 +42,6 @@ function getFallback(name) {
     return FALLBACKS[Math.abs(h) % FALLBACKS.length];
 }
 
-/**
- * Fetch a food image from Spoonacular's recipe search.
- * Endpoint: GET /recipes/complexSearch?query=<dish>&number=1&addRecipeInformation=false
- * Returns the first recipe's image URL, or falls back to a static photo.
- */
 function fetchDishImageAsync(name, imgSearch) {
     const cacheKey = name || imgSearch || "unknown";
 
@@ -71,7 +66,6 @@ function fetchDishImageAsync(name, imgSearch) {
         .then(r => r.json())
         .then(data => {
             const result = data?.results?.[0];
-            // Spoonacular returns full image URLs directly in complexSearch
             const imgUrl = result?.image || null;
             const final = imgUrl || getFallback(cacheKey);
             IMG_CACHE[cacheKey] = final;
@@ -179,7 +173,17 @@ function buildPrefsContext() {
     } catch { return "General food lover"; }
 }
 
-function buildSystemPrompt() {
+// ─── FIX: Inject pending meal context into system prompt ─────────────────────
+function buildSystemPrompt(pendingMealRef) {
+    const pendingBlock = pendingMealRef?.current
+        ? `\nCURRENT PENDING MEAL (awaiting user confirmation):
+Name: ${pendingMealRef.current.meal?.name || ""}
+MealType: ${pendingMealRef.current.mealType || "Lunch"}
+Date: ${pendingMealRef.current.date || todayKey()}
+If the user says yes/confirm/add/ok/sure/go ahead → use action "add_meal" with this exact pendingMeal, pendingMealType, and pendingDate.
+If the user says no/cancel/skip → use action null and clear pending.`
+        : "";
+
     return `You are Kitchen Buddy's friendly AI meal assistant. You help users:
 1. Get meal suggestions for Breakfast, Lunch, or Dinner
 2. Add meals directly to their Meal Log and Meal Plan calendar
@@ -187,6 +191,7 @@ function buildSystemPrompt() {
 
 User profile:
 ${buildPrefsContext()}
+${pendingBlock}
 
 RESPONSE FORMAT — always reply with ONLY valid JSON in this shape:
 {
@@ -200,11 +205,19 @@ RESPONSE FORMAT — always reply with ONLY valid JSON in this shape:
 
 ACTION RULES:
 - "suggest": user asked for meal ideas → put 3-4 dish objects in "dishes"
-- "confirm_add": you want to confirm before adding → ask in "message", set pendingMeal/pendingMealType/pendingDate
-- "add_meal": user confirmed, add this meal → set pendingMeal (full dish object), pendingMealType, pendingDate (YYYY-MM-DD, use today if not specified)
-- null: general chat, no action
+- "confirm_add": user asked to add a specific meal but you need to confirm details → ask in "message", set pendingMeal (full dish object), pendingMealType, pendingDate (YYYY-MM-DD)
+- "add_meal": user confirmed adding a meal (said yes/sure/ok/confirm/go ahead/add it) → set pendingMeal (FULL dish object with all fields), pendingMealType, pendingDate. NEVER set action to "add_meal" without a complete pendingMeal object.
+- null: general chat, no action needed
 
-DISH OBJECT shape (for suggest and add_meal):
+CRITICAL: When action is "add_meal", pendingMeal MUST be a complete dish object with name, description, cuisine, time, difficulty, isVeg, calories, imgSearch, ingredients (array), and steps (array). Never return action "add_meal" with pendingMeal as null.
+
+MEAL TYPE DETECTION:
+- If user says "breakfast" or message context is breakfast → pendingMealType: "Breakfast"
+- If user says "lunch" → pendingMealType: "Lunch"
+- If user says "dinner" or "supper" → pendingMealType: "Dinner"
+- If unclear, use "Lunch" as default
+
+DISH OBJECT shape (for suggest, confirm_add, and add_meal):
 {
   "name": "Dish Name",
   "description": "One sentence description",
@@ -254,8 +267,6 @@ function DishDetailModal({ dish, mealType, onAdd, onClose }) {
     return (
         <div className="dish-modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
             <div className="dish-modal">
-
-                {/* Hero image */}
                 <div className="dish-modal-hero">
                     {imgSrc
                         ? <img src={imgSrc} alt={dish.name} />
@@ -268,7 +279,6 @@ function DishDetailModal({ dish, mealType, onAdd, onClose }) {
                     </div>
                 </div>
 
-                {/* Meta badges */}
                 <div className="dish-modal-meta">
                     <span className="dish-meta-badge">{dish.isVeg ? "🌿 Veg" : "🍗 Non-Veg"}</span>
                     <span className="dish-meta-badge">⏱ {dish.time}</span>
@@ -277,7 +287,6 @@ function DishDetailModal({ dish, mealType, onAdd, onClose }) {
                     {dish.cuisine && <span className="dish-meta-badge">🌍 {dish.cuisine}</span>}
                 </div>
 
-                {/* Tabs */}
                 <div className="dish-modal-tabs">
                     <button
                         className={`dish-tab-btn ${activeTab === "ingredients" ? "active" : ""}`}
@@ -295,7 +304,6 @@ function DishDetailModal({ dish, mealType, onAdd, onClose }) {
                     </button>
                 </div>
 
-                {/* Tab content */}
                 <div className="dish-modal-body">
                     {activeTab === "ingredients" && (
                         <div className="dish-modal-ingredients">
@@ -327,7 +335,6 @@ function DishDetailModal({ dish, mealType, onAdd, onClose }) {
                     )}
                 </div>
 
-                {/* Footer */}
                 <div className="dish-modal-footer">
                     <button className="dish-modal-cancel" onClick={onClose}>Maybe Later</button>
                     <button
@@ -427,6 +434,9 @@ export default function AIBot({ addMeal }) {
     const recRef = useRef(null);
     const greetedRef = useRef(false);
 
+    // ─── FIX: Track pending meal state in a ref so it's always current ────────
+    const pendingMealRef = useRef(null); // { meal, mealType, date }
+
     useEffect(() => {
         if (greetedRef.current) return;
         greetedRef.current = true;
@@ -462,17 +472,23 @@ export default function AIBot({ addMeal }) {
 
     function handleAddDish(dish, mealType) {
         const mt = mealType || "Lunch";
+        // Store pending meal in ref so typed confirmations can access it
+        pendingMealRef.current = { meal: dish, mealType: mt, date: todayKey() };
+
         pushBotMsg(
             'Add "' + dish.name + '" to your ' + mt + ' for today?',
             null, null,
             [
                 { label: "✅ Yes, add it!", onClick: () => confirmAdd(dish, mt, todayKey()) },
-                { label: "❌ No thanks", onClick: () => pushBotMsg("No problem! Let me know if you want something else 😊") },
+                { label: "❌ No thanks", onClick: () => { pendingMealRef.current = null; pushBotMsg("No problem! Let me know if you want something else 😊"); } },
             ]
         );
     }
 
     async function confirmAdd(dish, mealType, dateKey) {
+        // Clear pending state
+        pendingMealRef.current = null;
+
         await saveToMealLog(dish, mealType);
         saveToCalendar(dish, mealType, dateKey, addMeal);
         pushBotMsg(
@@ -486,6 +502,24 @@ export default function AIBot({ addMeal }) {
         );
     }
 
+    // ─── FIX: Detect meal type reliably from full conversation context ─────────
+    function detectMealType(userText, aiPendingMT, historyMessages) {
+        const lower = userText.toLowerCase();
+        if (lower.includes("breakfast")) return "Breakfast";
+        if (lower.includes("lunch")) return "Lunch";
+        if (lower.includes("dinner") || lower.includes("supper")) return "Dinner";
+
+        // Check recent history for meal type context
+        for (let i = historyMessages.length - 1; i >= Math.max(0, historyMessages.length - 6); i--) {
+            const c = (historyMessages[i]?.content || "").toLowerCase();
+            if (c.includes("breakfast")) return "Breakfast";
+            if (c.includes("lunch")) return "Lunch";
+            if (c.includes("dinner") || c.includes("supper")) return "Dinner";
+        }
+
+        return aiPendingMT || "Lunch";
+    }
+
     async function sendMessage(text) {
         const userText = (text || input).trim();
         if (!userText || loading) return;
@@ -493,35 +527,67 @@ export default function AIBot({ addMeal }) {
         setMessages(prev => [...prev, { role: "user", content: userText }]);
         historyRef.current.push({ role: "user", content: userText });
         setLoading(true);
+
         try {
+            // ─── FIX: Pass pendingMealRef so system prompt knows about pending meal ──
             const groqMessages = [
-                { role: "system", content: buildSystemPrompt() },
+                { role: "system", content: buildSystemPrompt(pendingMealRef) },
                 ...historyRef.current.slice(-12),
             ];
             const res = await askGroq(groqMessages);
+
             const botText = res.message || "I'm not sure about that. Try asking for meal suggestions!";
             const action = res.action || null;
             const dishes = Array.isArray(res.dishes) ? res.dishes : [];
             const pending = res.pendingMeal || null;
             const pendingMT = res.pendingMealType || "Lunch";
             const pendingDate = res.pendingDate || todayKey();
+
             historyRef.current.push({ role: "assistant", content: botText });
 
             if (action === "suggest") {
-                const lower = userText.toLowerCase();
-                const mt = lower.includes("breakfast") ? "Breakfast"
-                    : lower.includes("lunch") ? "Lunch"
-                        : lower.includes("dinner") ? "Dinner"
-                            : pendingMT;
+                const mt = detectMealType(userText, pendingMT, historyRef.current);
                 pushBotMsg(botText, dishes, mt);
+
             } else if (action === "confirm_add" && pending) {
+                // ─── FIX: Store pending meal in ref for typed confirmations ───────
+                pendingMealRef.current = { meal: pending, mealType: pendingMT, date: pendingDate };
                 pushBotMsg(botText, null, null, [
-                    { label: "✅ Yes, add it!", onClick: () => confirmAdd(pending, pendingMT, pendingDate) },
-                    { label: "❌ No thanks", onClick: () => pushBotMsg("Got it! What else can I help with?") },
+                    {
+                        label: "✅ Yes, add it!", onClick: () => confirmAdd(
+                            pendingMealRef.current?.meal || pending,
+                            pendingMealRef.current?.mealType || pendingMT,
+                            pendingMealRef.current?.date || pendingDate
+                        )
+                    },
+                    {
+                        label: "❌ No thanks", onClick: () => {
+                            pendingMealRef.current = null;
+                            pushBotMsg("Got it! What else can I help with?");
+                        }
+                    },
                 ]);
-            } else if (action === "add_meal" && pending) {
-                confirmAdd(pending, pendingMT, pendingDate);
+
+            } else if (action === "add_meal") {
+                // ─── FIX: Use AI-returned pendingMeal OR fall back to ref ─────────
+                const dishToAdd = (pending && pending.name)
+                    ? pending
+                    : pendingMealRef.current?.meal || null;
+
+                const mealTypeToUse = pendingMT || pendingMealRef.current?.mealType || "Lunch";
+                const dateToUse = pendingDate || pendingMealRef.current?.date || todayKey();
+
+                if (dishToAdd && dishToAdd.name) {
+                    // Show the bot message first, then add
+                    pushBotMsg(botText);
+                    await confirmAdd(dishToAdd, mealTypeToUse, dateToUse);
+                } else {
+                    // AI returned add_meal but no dish — recover gracefully
+                    pushBotMsg("I'd love to add that! Could you tell me which meal you'd like to add? 🍽️");
+                }
+
             } else {
+                // General chat — show quick replies if no dishes
                 const qr = dishes.length === 0 ? [
                     { label: "🌅 Breakfast ideas", onClick: () => sendMessage("Suggest breakfast ideas") },
                     { label: "☀️ Lunch ideas", onClick: () => sendMessage("Suggest lunch ideas") },
@@ -529,6 +595,7 @@ export default function AIBot({ addMeal }) {
                 ] : [];
                 pushBotMsg(botText, dishes, pendingMT, qr);
             }
+
         } catch (e) {
             pushBotMsg("Oops, something went wrong. Please try again! 🙏");
         }
