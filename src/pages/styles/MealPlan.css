@@ -1,100 +1,113 @@
-/* ===== SECTION HEADER ===== */
+/* ─── MealPlan / Daily Menu Focus ────────────────────────────────────────── */
+
+/* ── Section header ── */
 .section-header {
     display: flex;
+    align-items: flex-end;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
-
-.section-title {
-    font-size: 19px;
-    font-weight: 800;
-}
-
-.view-week-btn {
-    color: var(--orange);
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-family: 'Nunito', sans-serif;
-}
-
-.view-week-btn:hover {
-    text-decoration: underline;
-}
-
-/* ===== MEAL CARDS GRID ===== */
-.meal-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
     margin-bottom: 20px;
 }
 
-/* ===== SINGLE CARD ===== */
-.mp-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 14px;
-    border: 1.5px solid var(--border, #eee);
-    cursor: pointer;
-    transition: box-shadow 0.2s, transform 0.15s, border-color 0.15s;
-    position: relative;
-    overflow: hidden;
+.section-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #22c55e;
+    margin-bottom: 2px;
 }
 
-.mp-card:hover:not(.editing) {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, .10);
+.section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+}
+
+.view-week-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1a7a4a;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.view-week-btn::after {
+    content: '→';
+    font-size: 1rem;
+}
+
+.view-week-btn:hover {
+    opacity: 0.75;
+}
+
+/* ── Meal cards grid ── */
+.meal-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 36px;
+}
+
+/* ── Individual meal card ── */
+.mp-card {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1.5px solid #f0f0f0;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+    position: relative;
+}
+
+.mp-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
     transform: translateY(-2px);
+    border-color: #e5e7eb;
 }
 
 .mp-card.editing {
-    border-color: #e8622a;
-    box-shadow: 0 0 0 3px rgba(232, 98, 42, 0.12);
-    cursor: default;
-    transform: none;
+    border-color: #1a7a4a;
+    box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.12);
 }
 
-/* Edit hint that appears on hover */
-.mp-edit-hint {
-    position: absolute;
-    bottom: 10px;
-    right: 12px;
-    font-size: 10px;
-    color: #bbb;
-    opacity: 0;
-    transition: opacity 0.15s;
-    pointer-events: none;
-}
-
-.mp-card:hover:not(.editing) .mp-edit-hint {
-    opacity: 1;
-}
-
-/* ===== CARD LABEL ===== */
+/* Label badge */
 .mp-card-label {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: var(--muted, #aaa);
-    margin-bottom: 10px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    z-index: 2;
+    backdrop-filter: blur(4px);
 }
 
-/* ===== THUMBNAIL / IMAGE ===== */
+/* Image / thumbnail area */
 .mp-card-thumb {
-    width: 98%;
-    height: 150px;
-    border-radius: 10px;
-    background: var(--bg, #f5f0eb);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 12px;
-    overflow: hidden;
+    width: 100%;
+    height: 175px;
+    background: #f5f6f8;
     position: relative;
+    overflow: hidden;
+    cursor: inherit;
 }
 
 .mp-card-img {
@@ -111,402 +124,380 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: opacity 0.15s;
-}
-
-.mp-card-thumb:hover .mp-card-img-overlay {
-    opacity: 1;
-}
-
-.mp-card-img-overlay span {
     color: #fff;
-    font-size: 13px;
+    font-size: 0.85rem;
     font-weight: 600;
 }
 
 .mp-card-emoji-wrap {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
+    gap: 8px;
+    background: #f5f6f8;
 }
 
 .mp-card-emoji {
-    font-size: 36px;
+    font-size: 3rem;
 }
 
 .mp-add-photo-hint {
-    font-size: 11px;
-    color: #bbb;
+    font-size: 0.75rem;
+    color: #6b7280;
     font-weight: 500;
 }
 
-.mp-card-emoji-wrap:hover .mp-add-photo-hint {
-    color: #e8622a;
-}
-
-/* ===== CARD TEXT ===== */
+/* Content area */
 .mp-card-name {
-    font-size: 14px;
-    font-weight: 800;
-    margin-bottom: 4px;
-    color: #1a1a1a;
-}
-
-.mp-card-name.mp-placeholder {
-    color: #ccc;
-    font-weight: 500;
-}
-
-.mp-card-info {
-    font-size: 12px;
-    color: var(--muted, #aaa);
-    font-weight: 600;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+    padding: 14px 16px 4px;
+    letter-spacing: -0.2px;
 }
 
 .mp-placeholder {
-    color: #ccc;
+    color: #9ca3af;
+    font-weight: 400;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
 }
 
-/* ===== EDIT INPUTS ===== */
+.mp-card-info {
+    font-size: 0.82rem;
+    color: #f97316;
+    font-weight: 600;
+    padding: 0 16px 14px;
+}
+
+.mp-card-info .mp-placeholder {
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+/* Tag chips row — shown below name/info */
+.mp-card-tags {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px 14px;
+}
+
+.mp-tag-list {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.mp-tag {
+    font-size: 0.67rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #374151;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.mp-edit-icon {
+    color: #1a7a4a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.mp-edit-icon:hover {
+    opacity: 1;
+}
+
+/* ─── Edit mode inputs ────────────────────────────────────────────────────── */
 .mp-input {
     width: 100%;
-    padding: 7px 10px;
-    border: 1.5px solid #e8e8e8;
+    border: 1.5px solid #e5e7eb;
     border-radius: 8px;
-    font-size: 13px;
-    font-family: inherit;
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: #111827;
     outline: none;
+    transition: border-color 0.2s;
     background: #fafafa;
-    color: #1a1a1a;
-    transition: border-color 0.15s;
-    box-sizing: border-box;
+    display: block;
+    margin: 8px 16px;
+    width: calc(100% - 32px);
 }
 
 .mp-input:focus {
-    border-color: #e8622a;
-    background: #fff;
-}
-
-.mp-input::placeholder {
-    color: #ccc;
+    border-color: #1a7a4a;
 }
 
 .mp-name-input {
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    margin-top: 2px;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .mp-inline-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
-    margin-bottom: 4px;
+    padding: 0 16px;
+}
+
+.mp-inline-row .mp-input {
+    margin: 0;
+    width: 100%;
 }
 
 .mp-small-input {
-    flex: 1;
-    font-size: 12px;
+    font-size: 0.82rem;
 }
 
-/* Hide number spinner */
-.mp-small-input::-webkit-inner-spin-button,
-.mp-small-input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-}
-
-/* ===== EDIT EXTRA (instructions, notes, actions) ===== */
 .mp-edit-extra {
+    padding: 8px 16px 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 10px;
-    border-top: 1px solid #f0ece8;
-    padding-top: 10px;
 }
 
 .mp-textarea {
     width: 100%;
-    padding: 7px 10px;
-    border: 1.5px solid #e8e8e8;
+    border: 1.5px solid #e5e7eb;
     border-radius: 8px;
-    font-size: 12px;
-    font-family: inherit;
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: #374151;
     outline: none;
-    background: #fafafa;
-    color: #555;
     resize: none;
-    transition: border-color 0.15s;
-    box-sizing: border-box;
-    line-height: 1.5;
+    background: #fafafa;
+    transition: border-color 0.2s;
 }
 
 .mp-textarea:focus {
-    border-color: #e8622a;
-    background: #fff;
+    border-color: #1a7a4a;
 }
 
-.mp-textarea::placeholder {
-    color: #ccc;
-}
-
-/* ===== CARD ACTIONS ===== */
 .mp-card-actions {
     display: flex;
     gap: 8px;
-    justify-content: flex-end;
 }
 
 .mp-btn-save {
-    padding: 7px 16px;
-    border-radius: 8px;
-    border: none;
-    background: #e8622a;
+    flex: 1;
+    background: #1a7a4a;
     color: #fff;
-    font-size: 12px;
-    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s;
+    transition: background 0.2s;
 }
 
 .mp-btn-save:hover {
-    background: #d4531e;
+    background: #145f39;
 }
 
 .mp-btn-cancel {
-    padding: 7px 14px;
-    border-radius: 8px;
-    border: 1px solid #e8e8e8;
-    background: #fff;
-    color: #888;
-    font-size: 12px;
-    font-weight: 600;
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
     cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s;
+    transition: background 0.2s;
 }
 
 .mp-btn-cancel:hover {
-    background: #f5f5f5;
+    background: #e5e7eb;
 }
 
-/* ===== IMAGE UPLOAD MODAL ===== */
+/* Hover hint */
+.mp-edit-hint {
+    font-size: 0.72rem;
+    color: #9ca3af;
+    text-align: center;
+    padding: 8px 0 12px;
+    display: none;
+}
+
+.mp-card:hover .mp-edit-hint {
+    display: block;
+}
+
+/* ─── Image Upload Modal ──────────────────────────────────────────────────── */
 .mp-modal-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 300;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 600;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(3px);
+    padding: 24px;
 }
 
 .mp-modal-box {
     background: #fff;
-    border-radius: 18px;
-    padding: 24px;
-    width: 340px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    animation: mpFadeUp 0.2s ease;
-}
-
-@keyframes mpFadeUp {
-    from {
-        transform: translateY(14px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
 }
 
 .mp-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
-    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.mp-modal-header span {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #111827;
 }
 
 .mp-modal-close {
     background: none;
     border: none;
-    font-size: 22px;
+    font-size: 1.4rem;
     cursor: pointer;
-    color: #aaa;
+    color: #6b7280;
     line-height: 1;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
 }
 
 .mp-modal-close:hover {
-    color: #555;
+    background: #f3f4f6;
 }
 
 .mp-tab-row {
     display: flex;
-    border: 1px solid #eee;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 20px;
 }
 
 .mp-tab {
     flex: 1;
-    padding: 9px 0;
+    background: #f3f4f6;
     border: none;
-    background: #fafafa;
-    color: #888;
-    font-size: 13px;
+    border-radius: 10px;
+    padding: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
     font-weight: 600;
+    color: #6b7280;
     cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
+    transition: background 0.2s, color 0.2s;
 }
 
 .mp-tab.active {
-    background: #e8622a;
+    background: #1a7a4a;
     color: #fff;
 }
 
 .mp-file-zone {
-    border: 2px dashed #e0d0c8;
-    border-radius: 12px;
-    padding: 28px 16px;
+    border: 2px dashed #e5e7eb;
+    border-radius: 14px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    background: #fdf8f5;
-    transition: border-color 0.15s;
-    font-size: 13px;
-    color: #888;
-    font-weight: 500;
+    gap: 6px;
+    transition: border-color 0.2s, background 0.2s;
 }
 
 .mp-file-zone:hover {
-    border-color: #e8622a;
+    border-color: #1a7a4a;
+    background: #f0faf5;
 }
 
 .mp-file-icon {
-    font-size: 32px;
+    font-size: 2rem;
+    margin-bottom: 4px;
 }
 
 .mp-file-hint {
-    font-size: 11px;
-    color: #ccc;
+    font-size: 0.75rem;
+    color: #9ca3af;
 }
 
 .mp-url-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .mp-url-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1.5px solid #e8e8e8;
+    border: 1.5px solid #e5e7eb;
     border-radius: 10px;
-    font-size: 13px;
-    font-family: inherit;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: #111827;
     outline: none;
-    box-sizing: border-box;
-    transition: border-color 0.15s;
+    transition: border-color 0.2s;
 }
 
 .mp-url-input:focus {
-    border-color: #e8622a;
+    border-color: #1a7a4a;
 }
 
 .mp-url-input.error {
-    border-color: #e8622a;
+    border-color: #ef4444;
 }
 
 .mp-url-err {
-    font-size: 12px;
-    color: #e8622a;
+    font-size: 0.78rem;
+    color: #ef4444;
 }
 
 .mp-btn-primary {
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-    background: #e8622a;
+    background: #1a7a4a;
     color: #fff;
-    font-size: 13px;
-    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s;
+    transition: background 0.2s;
 }
 
 .mp-btn-primary:hover {
-    background: #d4531e;
+    background: #145f39;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .section-header {
-        margin-bottom: 12px;
-    }
-
-    .section-title {
-        font-size: 17px;
-    }
-
-    .meal-cards {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .mp-card {
-        padding: 14px 16px;
-    }
-
-    .mp-card-thumb {
-        height: 70px;
-    }
-
-    .mp-card-emoji {
-        font-size: 28px;
-    }
-
-    .mp-card-name {
-        font-size: 13px;
-    }
-
-    .mp-card-info {
-        font-size: 11px;
-    }
-
-    .mp-modal-box {
-        width: calc(100vw - 32px);
-    }
-}
-
-@media (max-width: 480px) {
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
     .meal-cards {
         grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
     }
+}
 
-    .mp-card-thumb {
-        height: 60px;
-    }
-
-    .mp-card-emoji {
-        font-size: 24px;
+@media (max-width: 600px) {
+    .meal-cards {
+        grid-template-columns: 1fr;
     }
 }

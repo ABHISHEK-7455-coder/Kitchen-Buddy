@@ -2,6 +2,7 @@ import HeroCard from "../components/HeroCard";
 import MealPlan from "../components/MealPlan";
 import AIBot from "../components/AIBot";
 import Navbar from "../components/Navbar";
+import "../pages/styles/HomePage.css"
 
 export default function HomePage({ mealPlans, addMeal, onOpenProfile }) {
     return (
