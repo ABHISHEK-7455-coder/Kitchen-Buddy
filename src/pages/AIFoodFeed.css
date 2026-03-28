@@ -12,9 +12,9 @@
   --brand-hover: #d4531e;
   --brand-light: rgba(232, 98, 42, .12);
   --brand-glow: rgba(232, 98, 42, .35);
-  --bg: #0f0f0f;
-  --surface: #181818;
-  --surface2: #222222;
+  --bg: white;
+  --surface: #10B981;
+  --surface2: white;
   --border: rgba(255, 255, 255, .08);
   --text: #f0ebe4;
   --muted: #888;
@@ -48,7 +48,7 @@ input {
 /* ── Root ───────────────────────────────────────────────────────────── */
 .feed-root {
   min-height: 100vh;
-  background: var(--bg);
+  background: white;
   color: var(--text);
   font-family: var(--font-body);
   padding-bottom: 120px;
@@ -59,7 +59,7 @@ input {
    HERO BAR
 ═══════════════════════════════════════════════ */
 .feed-hero {
-  background: linear-gradient(160deg, #1a0f0a 0%, #0f0f0f 60%);
+  background: white;
   border-bottom: 1px solid var(--border);
   padding: 40px 0 32px;
   position: relative;
@@ -200,7 +200,7 @@ input {
   font-size: 13px;
   font-weight: 500;
   color: var(--muted);
-  background: var(--surface);
+  background: #10B981;
   transition: all .18s;
   white-space: nowrap;
 }
@@ -215,7 +215,7 @@ input {
    FILTER BAR
 ═══════════════════════════════════════════════ */
 .feed-filter-bar {
-  background: var(--surface);
+  background: white;
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;

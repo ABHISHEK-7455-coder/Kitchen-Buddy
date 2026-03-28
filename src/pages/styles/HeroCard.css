@@ -1,20 +1,22 @@
-/* ─── HeroCard & Page Header ──────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+/* ─── HeroCard & Page Header · NutriAI Style ─────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 /* ── Page Header (Greeting) ── */
 .page-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    padding-top: 4px;
 }
 
 .greeting__title {
     font-family: 'Syne', sans-serif;
-    font-size: 1.35rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: var(--text-primary);
-    letter-spacing: -0.3px;
+    letter-spacing: -0.4px;
+    line-height: 1.3;
 }
 
 .greeting__title span {
@@ -25,31 +27,47 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
-    margin-top: 4px;
+    margin-top: 5px;
+    font-weight: 400;
 }
 
-/* ── Hero Search Banner ── */
+/* ── Hero Card ── */
 .hero-card {
     background: #ffffff;
     border-radius: 24px;
-    padding: 44px 48px;
+    padding: 44px 52px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 32px;
-    margin-bottom: 40px;
+    gap: 40px;
+    margin-bottom: 44px;
     position: relative;
     overflow: hidden;
     min-height: 280px;
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-soft);
 }
 
-/* Large heading */
+/* Subtle background texture */
+.hero-card::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: 280px;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(26,122,74,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
 .hero-card__content {
     flex: 1;
     min-width: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .ai-badge {
@@ -58,26 +76,27 @@
     gap: 6px;
     background: var(--green-light);
     color: var(--green);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.4px;
-    padding: 4px 12px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 5px 12px;
     border-radius: 100px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     text-transform: uppercase;
+    border: 1px solid var(--green-mid);
 }
 
 .hero-card__title {
     font-family: 'Syne', sans-serif;
-    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-size: clamp(1.9rem, 3.8vw, 2.75rem);
     font-weight: 800;
     color: var(--text-primary);
-    line-height: 1.15;
-    letter-spacing: -1px;
-    margin-bottom: 8px;
+    line-height: 1.12;
+    letter-spacing: -1.2px;
+    margin-bottom: 10px;
 }
 
-/* Search bar */
+/* Search bar inside hero */
 .hero-search-wrap {
     display: flex;
     align-items: center;
@@ -85,16 +104,24 @@
     background: var(--bg);
     border: 1.5px solid var(--border);
     border-radius: 50px;
-    padding: 10px 16px;
-    margin-top: 20px;
+    padding: 9px 9px 9px 18px;
+    margin-top: 22px;
     margin-bottom: 16px;
-    max-width: 480px;
+    max-width: 500px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.hero-search-wrap:focus-within {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(26,122,74,0.10);
 }
 
 .hero-search-wrap svg,
 .hero-search-icon {
     color: var(--text-muted);
     flex-shrink: 0;
+    width: 16px;
+    height: 16px;
 }
 
 .hero-search-input {
@@ -118,8 +145,14 @@
     color: var(--text-muted);
     display: flex;
     align-items: center;
-    padding: 0;
+    padding: 0 4px;
     flex-shrink: 0;
+    transition: color 0.2s;
+    font-size: 1rem;
+}
+
+.hero-mic-btn:hover {
+    color: var(--green);
 }
 
 .hero-suggest-btn {
@@ -130,19 +163,21 @@
     color: #fff;
     border: none;
     border-radius: 50px;
-    padding: 11px 22px;
+    padding: 10px 22px;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.2s, transform 0.15s;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
     flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(26,122,74,0.25);
 }
 
 .hero-suggest-btn:hover {
     background: var(--green-dark);
     transform: translateY(-1px);
+    box-shadow: 0 4px 18px rgba(26,122,74,0.32);
 }
 
 /* Tag chips */
@@ -150,13 +185,13 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 .hero-tag {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     background: var(--bg);
     border: 1.5px solid var(--border);
     color: var(--text-secondary);
@@ -165,43 +200,66 @@
     padding: 6px 14px;
     border-radius: 100px;
     cursor: pointer;
-    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.15s;
 }
 
 .hero-tag:hover {
     border-color: var(--green);
     color: var(--green);
     background: var(--green-light);
+    transform: translateY(-1px);
 }
 
 /* Vegetable image area */
 .hero-card__image {
     flex-shrink: 0;
-    width: 240px;
-    height: 220px;
+    width: 250px;
+    height: 230px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 5rem;
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
-    background: transparent;
+    background: #f0f2f5;
     position: relative;
+    z-index: 1;
 }
 
-.hero-card__image img {
+.hero-food-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 16px;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
-/* ── Original hero-card desc & meta (kept for HeroCard.jsx compat) ── */
+.hero-food-img.loaded {
+    opacity: 1;
+}
+
+.hero-img-skeleton {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+}
+
+.hero-img-skeleton--abs {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+}
+
+/* ── AI Suggestion version of hero (HeroCard.jsx) ── */
 .hero-card__desc {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 16px;
+    line-height: 1.65;
+    margin-bottom: 18px;
+    max-width: 440px;
 }
 
 .hero-card__desc span {
@@ -211,19 +269,20 @@
 
 .hero-card__meta {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
 }
 
 .meta-item {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 100px;
-    padding: 5px 12px;
-    font-size: 0.8rem;
+    padding: 5px 14px;
+    font-size: 0.78rem;
     color: var(--text-secondary);
     font-weight: 500;
+    white-space: nowrap;
 }
 
 /* ── Actions ── */
@@ -241,22 +300,42 @@
     color: #fff;
     border: none;
     border-radius: 50px;
-    padding: 11px 22px;
+    padding: 11px 24px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, transform 0.15s;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px rgba(26,122,74,0.22);
 }
 
-.btn-primary:hover {
+.start-cookng {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 11px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px rgba(26,122,74,0.22);
+}
+
+.btn-primary:hover,
+.start-cooking:hover {
     background: var(--green-dark);
     transform: translateY(-1px);
+    box-shadow: 0 4px 18px rgba(26,122,74,0.32);
 }
 
 .btn-bookmark {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     border: 1.5px solid var(--border);
     border-radius: 50%;
     display: flex;
@@ -266,90 +345,102 @@
     background: #fff;
     color: var(--text-secondary);
     transition: border-color 0.2s, color 0.2s, background 0.2s;
+    flex-shrink: 0;
 }
 
 .btn-bookmark:hover {
     border-color: var(--orange);
     color: var(--orange);
+    background: var(--orange-light);
 }
 
 /* ── Loading skeleton ── */
 .hero-card__loading {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     padding: 8px 0;
 }
 
 .hero-skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.4s infinite;
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 .hero-skeleton--title {
-    height: 28px;
-    width: 70%;
+    height: 30px;
+    width: 72%;
 }
 
 .hero-skeleton--line {
     height: 16px;
-    width: 90%;
+    width: 88%;
 }
 
 .hero-skeleton--line.short {
-    width: 55%;
+    width: 52%;
 }
 
 @keyframes shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-
-    100% {
-        background-position: -200% 0;
-    }
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 /* ── Cook Modal ── */
 .cook-modal {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.42);
     z-index: 500;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .cook-content {
     background: #fff;
-    border-radius: 20px;
-    padding: 32px;
-    max-width: 480px;
+    border-radius: 22px;
+    padding: 36px;
+    max-width: 500px;
     width: 100%;
-    max-height: 80vh;
+    max-height: 82vh;
     overflow-y: auto;
+    animation: slideUp 0.25s cubic-bezier(.22,1,.36,1);
+    box-shadow: var(--shadow-lg);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .cook-content h2 {
     font-family: 'Syne', sans-serif;
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 20px;
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin-bottom: 22px;
     color: var(--text-primary);
+    letter-spacing: -0.4px;
 }
 
 .cook-content h4 {
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     color: var(--text-muted);
     margin-bottom: 10px;
-    margin-top: 18px;
+    margin-top: 20px;
 }
 
 .cook-content ul,
@@ -357,16 +448,16 @@
     padding-left: 20px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .cook-content li {
     font-size: 0.9rem;
     color: var(--text-secondary);
-    line-height: 1.5;
+    line-height: 1.55;
 }
 
-/* ─── Section layout used on homepage ────────────────────────────────────── */
+/* ─── Section layout ─────────────────────────────────────────────────────── */
 .section-header {
     display: flex;
     align-items: center;
@@ -375,7 +466,7 @@
 }
 
 .section-eyebrow {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
@@ -385,10 +476,11 @@
 
 .section-title {
     font-family: 'Syne', sans-serif;
-    font-size: 1.45rem;
+    font-size: 1.5rem;
     font-weight: 800;
     color: var(--text-primary);
-    letter-spacing: -0.4px;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
 }
 
 .view-week-btn {
@@ -405,29 +497,58 @@
     padding: 6px 12px;
     border-radius: 8px;
     transition: background 0.2s;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.view-week-btn::after {
+    content: '→';
+    font-size: 1rem;
+    margin-left: 2px;
 }
 
 .view-week-btn:hover {
     background: var(--green-light);
 }
 
-/* ─── Responsive ──────────────────────────────────────────────────────────── */
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .hero-card {
+        gap: 28px;
+        padding: 36px 36px;
+    }
+
+    .hero-card__image {
+        width: 200px;
+        height: 190px;
+    }
+}
+
 @media (max-width: 768px) {
     .hero-card {
         flex-direction: column;
-        padding: 28px 24px;
+        padding: 28px 24px 32px;
         min-height: unset;
-        gap: 20px;
+        gap: 22px;
+        border-radius: 20px;
     }
 
     .hero-card__image {
         width: 100%;
-        height: 160px;
+        height: 170px;
         order: -1;
     }
 
     .hero-card__title {
         font-size: 1.75rem;
+    }
+
+    .hero-card__content {
+        width: 100%;
+    }
+
+    .hero-search-wrap {
+        max-width: 100%;
     }
 
     .hero-suggest-btn span {

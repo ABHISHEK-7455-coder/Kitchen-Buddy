@@ -186,7 +186,7 @@ export default function HeroCard() {
                             </div>
 
                             <div className="hero-card__actions">
-                                <button className="btn-primary start-cooking" onClick={() => setShowModal(true)}>
+                                <button className="start-cooking" onClick={() => setShowModal(true)}>
                                     <PlayIcon />
                                     Start Cooking
                                 </button>

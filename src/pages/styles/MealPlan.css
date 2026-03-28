@@ -1,11 +1,11 @@
-/* ─── MealPlan / Daily Menu Focus ────────────────────────────────────────── */
+/* ─── MealPlan · NutriAI Daily Menu Focus Style ──────────────────────────── */
 
 /* ── Section header ── */
 .section-header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
 }
 
 .section-eyebrow {
@@ -13,8 +13,8 @@
     font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    color: #22c55e;
-    margin-bottom: 2px;
+    color: var(--green, #1a7a4a);
+    margin-bottom: 3px;
 }
 
 .section-title {
@@ -22,7 +22,7 @@
     font-size: 1.5rem;
     font-weight: 800;
     color: #111827;
-    letter-spacing: -0.4px;
+    letter-spacing: -0.5px;
     line-height: 1.2;
 }
 
@@ -50,7 +50,7 @@
 }
 
 .view-week-btn:hover {
-    opacity: 0.75;
+    opacity: 0.72;
 }
 
 /* ── Meal cards grid ── */
@@ -58,7 +58,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 18px;
-    margin-bottom: 36px;
+    margin-bottom: 40px;
 }
 
 /* ── Individual meal card ── */
@@ -68,19 +68,19 @@
     overflow: hidden;
     border: 1.5px solid #f0f0f0;
     cursor: pointer;
-    transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+    transition: box-shadow 0.25s, transform 0.22s, border-color 0.2s;
     position: relative;
 }
 
 .mp-card:hover {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
-    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.11);
+    transform: translateY(-3px);
     border-color: #e5e7eb;
 }
 
 .mp-card.editing {
     border-color: #1a7a4a;
-    box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.12);
+    box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.12), 0 8px 32px rgba(0, 0, 0, 0.09);
 }
 
 /* Label badge */
@@ -88,22 +88,22 @@
     position: absolute;
     top: 12px;
     left: 12px;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.50);
     color: #fff;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.8px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.9px;
     text-transform: uppercase;
     padding: 4px 10px;
     border-radius: 100px;
     z-index: 2;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(6px);
 }
 
 /* Image / thumbnail area */
 .mp-card-thumb {
     width: 100%;
-    height: 175px;
+    height: 180px;
     background: #f5f6f8;
     position: relative;
     overflow: hidden;
@@ -115,18 +115,24 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.35s ease;
+}
+
+.mp-card:hover .mp-card-img {
+    transform: scale(1.04);
 }
 
 .mp-card-img-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.38);
+    background: rgba(0, 0, 0, 0.36);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     font-size: 0.85rem;
     font-weight: 600;
+    gap: 6px;
 }
 
 .mp-card-emoji-wrap {
@@ -137,49 +143,73 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: #f5f6f8;
+    background: linear-gradient(135deg, #f8f9fb 0%, #eff1f5 100%);
 }
 
 .mp-card-emoji {
-    font-size: 3rem;
+    font-size: 2.8rem;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
 }
 
 .mp-add-photo-hint {
-    font-size: 0.75rem;
-    color: #6b7280;
+    font-size: 0.72rem;
+    color: #9ca3af;
     font-weight: 500;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
 }
 
 /* Content area */
 .mp-card-name {
     font-family: 'Syne', sans-serif;
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #111827;
     padding: 14px 16px 4px;
     letter-spacing: -0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mp-placeholder {
-    color: #9ca3af;
+    color: #b0b8c4;
     font-weight: 400;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
 }
 
 .mp-card-info {
     font-size: 0.82rem;
-    color: #f97316;
+    color: var(--orange, #f97316);
     font-weight: 600;
-    padding: 0 16px 14px;
+    padding: 2px 16px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .mp-card-info .mp-placeholder {
-    color: #9ca3af;
+    color: #c4cad3;
     font-weight: 400;
+    font-size: 0.78rem;
 }
 
-/* Tag chips row — shown below name/info */
+/* Calorie tag shown inside card (like NutriAI design) */
+.mp-card-kcal {
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--orange, #f97316);
+    background: #fff4ed;
+    border: 1px solid #fed7aa;
+    border-radius: 20px;
+    padding: 2px 9px;
+}
+
+/* Tag chips row */
 .mp-card-tags {
     display: flex;
     align-items: center;
@@ -194,49 +224,51 @@
 }
 
 .mp-tag {
-    font-size: 0.67rem;
-    font-weight: 600;
+    font-size: 0.62rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
     color: #374151;
     background: #f3f4f6;
     border: 1px solid #e5e7eb;
-    padding: 3px 8px;
+    padding: 3px 9px;
     border-radius: 6px;
 }
 
 .mp-edit-icon {
-    color: #1a7a4a;
+    color: var(--green, #1a7a4a);
     cursor: pointer;
     display: flex;
     align-items: center;
-    opacity: 0.7;
+    opacity: 0.6;
     transition: opacity 0.2s;
+    font-size: 1rem;
 }
 
 .mp-edit-icon:hover {
     opacity: 1;
 }
 
-/* ─── Edit mode inputs ────────────────────────────────────────────────────── */
+/* ── Edit mode inputs ── */
 .mp-input {
-    width: 100%;
+    width: calc(100% - 32px);
     border: 1.5px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: 9px;
     padding: 8px 12px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.875rem;
     color: #111827;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
     background: #fafafa;
     display: block;
     margin: 8px 16px;
-    width: calc(100% - 32px);
 }
 
 .mp-input:focus {
     border-color: #1a7a4a;
+    box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.10);
+    background: #fff;
 }
 
 .mp-name-input {
@@ -270,19 +302,21 @@
 .mp-textarea {
     width: 100%;
     border: 1.5px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 8px 12px;
+    border-radius: 9px;
+    padding: 9px 12px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.8rem;
     color: #374151;
     outline: none;
     resize: none;
     background: #fafafa;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .mp-textarea:focus {
     border-color: #1a7a4a;
+    box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.10);
+    background: #fff;
 }
 
 .mp-card-actions {
@@ -296,16 +330,17 @@
     color: #fff;
     border: none;
     border-radius: 10px;
-    padding: 9px 0;
+    padding: 10px 0;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.15s;
 }
 
 .mp-btn-save:hover {
     background: #145f39;
+    transform: translateY(-1px);
 }
 
 .mp-btn-cancel {
@@ -313,7 +348,7 @@
     color: #374151;
     border: none;
     border-radius: 10px;
-    padding: 9px 16px;
+    padding: 10px 16px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.85rem;
     font-weight: 500;
@@ -327,36 +362,64 @@
 
 /* Hover hint */
 .mp-edit-hint {
-    font-size: 0.72rem;
-    color: #9ca3af;
+    font-size: 0.7rem;
+    color: #c4cad3;
     text-align: center;
-    padding: 8px 0 12px;
+    padding: 6px 0 12px;
     display: none;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
 }
 
 .mp-card:hover .mp-edit-hint {
-    display: block;
+    display: flex;
 }
 
-/* ─── Image Upload Modal ──────────────────────────────────────────────────── */
+/* ─── Image Upload Modal ── */
 .mp-modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.38);
     z-index: 600;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .mp-modal-box {
     background: #fff;
-    border-radius: 20px;
+    border-radius: 22px;
     padding: 28px;
     width: 100%;
     max-width: 400px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 20px 64px rgba(0, 0, 0, 0.16);
+    animation: slideUp 0.25s cubic-bezier(.22, 1, .36, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .mp-modal-header {
@@ -378,28 +441,32 @@
     border: none;
     font-size: 1.4rem;
     cursor: pointer;
-    color: #6b7280;
+    color: #9ca3af;
     line-height: 1;
     padding: 4px 8px;
     border-radius: 6px;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.2s;
 }
 
 .mp-modal-close:hover {
     background: #f3f4f6;
+    color: #374151;
 }
 
 .mp-tab-row {
     display: flex;
     gap: 8px;
     margin-bottom: 20px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 4px;
 }
 
 .mp-tab {
     flex: 1;
-    background: #f3f4f6;
+    background: transparent;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 9px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.85rem;
@@ -410,8 +477,9 @@
 }
 
 .mp-tab.active {
-    background: #1a7a4a;
-    color: #fff;
+    background: #ffffff;
+    color: #1a7a4a;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
 }
 
 .mp-file-zone {
@@ -438,7 +506,7 @@
 }
 
 .mp-file-hint {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #9ca3af;
 }
 
@@ -456,11 +524,12 @@
     font-size: 0.9rem;
     color: #111827;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .mp-url-input:focus {
     border-color: #1a7a4a;
+    box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.10);
 }
 
 .mp-url-input.error {
@@ -477,19 +546,20 @@
     color: #fff;
     border: none;
     border-radius: 10px;
-    padding: 10px;
+    padding: 11px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.15s;
 }
 
 .mp-btn-primary:hover {
     background: #145f39;
+    transform: translateY(-1px);
 }
 
-/* ─── Responsive ──────────────────────────────────────────────────────────── */
+/* ─── Responsive ── */
 @media (max-width: 900px) {
     .meal-cards {
         grid-template-columns: repeat(2, 1fr);
@@ -499,5 +569,10 @@
 @media (max-width: 600px) {
     .meal-cards {
         grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .mp-card-thumb {
+        height: 150px;
     }
 }
