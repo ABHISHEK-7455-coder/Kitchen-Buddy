@@ -8,7 +8,7 @@
     height: 58px;
     border-radius: 50%;
     border: none;
-    background: #e8622a;
+    background: #22c55e;
     color: #fff;
     font-size: 26px;
     cursor: pointer;
@@ -36,7 +36,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #ef4444;
+    background: #22c55e;
     color: #fff;
     font-size: 11px;
     font-weight: 700;
@@ -81,7 +81,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 16px;
-    background: #e8622a;
+    background: #22c55e;
     color: #fff;
     flex-shrink: 0;
 }
@@ -176,7 +176,7 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: #e8622a;
+    background: #22c55e;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -196,7 +196,7 @@
 
 .user-bubble {
     max-width: 78%;
-    background: #e8622a;
+    background: #22c55e;
     color: #fff;
     border-radius: 16px 16px 4px 16px;
     padding: 10px 13px;
@@ -267,8 +267,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    background: #fdf8f5;
-    border: 1.5px solid #f0d5c8;
+    background: #f7fdf9;
+    border: 1.5px solid #b0efc7;
     border-radius: 12px;
     padding: 9px 12px;
 }
@@ -298,7 +298,7 @@
     padding: 5px 12px;
     border-radius: 20px;
     border: none;
-    background: #e8622a;
+    background: #22c55e;
     color: #fff;
     font-size: 12px;
     font-weight: 700;
@@ -308,7 +308,7 @@
 }
 
 .bot-dish-chip-add:hover {
-    background: #d4531e;
+    background: #22c55e;
 }
 
 /* ===== QUICK REPLIES ===== */
@@ -322,9 +322,9 @@
 .bot-quick-btn {
     padding: 6px 12px;
     border-radius: 20px;
-    border: 1.5px solid #e8622a;
+    border: 1.5px solid #22c55e;
     background: transparent;
-    color: #e8622a;
+    color: #22c55e;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -334,7 +334,7 @@
 }
 
 .bot-quick-btn:hover {
-    background: #e8622a;
+    background: #22c55e;
     color: #fff;
 }
 
@@ -362,7 +362,7 @@
 }
 
 .bot-input:focus {
-    border-color: #e8622a;
+    border-color: #22c55e;
     background: #fff;
 }
 
@@ -412,7 +412,7 @@
     height: 36px;
     border-radius: 50%;
     border: none;
-    background: #e8622a;
+    background: #22c55e;
     color: #fff;
     font-size: 15px;
     cursor: pointer;
@@ -424,12 +424,12 @@
 }
 
 .bot-send-btn:hover:not(:disabled) {
-    background: #d4531e;
+    background: #22c55e;
     transform: scale(1.08);
 }
 
 .bot-send-btn:disabled {
-    background: #f0d5c8;
+    background: #bceacd;
     cursor: default;
 }
 

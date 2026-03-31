@@ -9,7 +9,7 @@ export default function HomePage({ mealPlans, addMeal, onOpenProfile }) {
         <>
             <Navbar onOpenProfile={onOpenProfile} />
             <main style={{
-                width: '90%',
+                width: '80%',
                 margin: 'auto',
                 padding: '32px 24px 0',
                 paddingBottom: 'max(32px, env(safe-area-inset-bottom, 80px))',

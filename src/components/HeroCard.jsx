@@ -140,9 +140,9 @@ export default function HeroCard() {
     return (
         <>
             {/* Greeting */}
-            <div className="page-header">
+            <div className="hero-page-header">
                 <div>
-                    <h1 className="greeting__title">
+                    <h1 className="hero-greeting__title">
                         {greeting}, <span>{userName}</span>
                     </h1>
                     <div className="greeting__date">

@@ -102,7 +102,7 @@ body {
 
 .navbar__link:hover {
     color: var(--text-primary);
-    background: var(--bg);
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .navbar__link--active {
@@ -147,7 +147,7 @@ body {
     color: var(--text-primary);
 }
 
-.navbar__avatar-btn {
+.navbar_avatar-btn {
     background: none;
     border: none;
     cursor: pointer;
@@ -160,9 +160,9 @@ body {
     transition: background 0.2s, border-color 0.2s;
 }
 
-.navbar__avatar-btn:hover {
-    background: var(--bg);
-    border-color: var(--green-mid);
+.navbar_avatar-btn:hover {
+    background: #fcfffd;
+    border-color: #22c55e;
 }
 
 .navbar__avatar {

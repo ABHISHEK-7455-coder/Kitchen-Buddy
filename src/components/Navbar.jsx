@@ -14,7 +14,6 @@ function MobileBottomNav() {
         { to: "/ai", icon: "fa-wand-magic-sparkles", label: "AI Feed" },
         { to: "/ingredients", icon: "fa-seedling", label: "Ingredients" },
         { to: "/planner", icon: "fa-calendar-days", label: "Planner" },
-        { to: "/pantry", icon: "fa-box", label: "Pantry" },
     ];
     return (
         <nav className="mobile-bottom-nav">
@@ -56,7 +55,7 @@ export default function Navbar({ onOpenProfile }) {
                     <NavLink to="/ingredients" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Ingredients</NavLink>
                     <NavLink to="/meal-log" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Meal Log</NavLink>
                     <NavLink to="/planner" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Planner</NavLink>
-                    <NavLink to="/pantry" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Pantry</NavLink>
+                    {/* <NavLink to="/pantry" className={({ isActive }) => "navbar__link" + (isActive ? " navbar__link--active" : "")}>Pantry</NavLink> */}
                 </div>
 
                 <div className="navbar__icons">
@@ -65,7 +64,7 @@ export default function Navbar({ onOpenProfile }) {
             Clicking this button opens the profile/onboarding modal.
           */}
                     <button
-                        className="navbar__avatar-btn"
+                        className="navbar_avatar-btn"
                         onClick={onOpenProfile}
                         title={savedName ? `Edit profile · ${savedName}` : "Set up your profile"}
                         aria-label="Open taste profile"

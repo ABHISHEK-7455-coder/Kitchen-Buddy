@@ -47,12 +47,12 @@ function fetchDishImage(cacheKey, searchTerm, callback) {
         IMG_CACHE[cacheKey] = null; callback(null); return;
     }
     var q = encodeURIComponent(searchTerm || cacheKey);
-    fetch("https://api.unsplash.com/search/photos?query=" + q + "&per_page=1&orientation=portrait&content_filter=high&client_id=" + UNSPLASH_ACCESS_KEY)
+    fetch("https://api.unsplash.com/search/photos?query=" + q + "&per_page=1&orientation=landscape&content_filter=high&client_id=" + UNSPLASH_ACCESS_KEY)
         .then(function (r) { return r.json(); })
         .then(function (d) {
             var photo = d && d.results && d.results[0];
             if (photo && photo.urls && photo.urls.raw) {
-                var url = photo.urls.raw + "&w=400&h=600&fit=crop&auto=format&q=80";
+                var url = photo.urls.raw + "&w=600&h=360&fit=crop&auto=format&q=80";
                 IMG_CACHE[cacheKey] = url; callback(url);
             } else { IMG_CACHE[cacheKey] = null; callback(null); }
         })
@@ -60,18 +60,18 @@ function fetchDishImage(cacheKey, searchTerm, callback) {
 }
 
 var FALLBACKS = [
-    "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1567620905732-f81944a37bdb?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1546069596-600bbec60b03?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1555939594-58329b054e4f?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1567620905732-f81944a37bdb?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1546069596-600bbec60b03?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1547592180-85f173990554?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1555939594-58329b054e4f?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&h=360&fit=crop",
+    "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&h=360&fit=crop",
 ];
 
 function getFallback(name) {
@@ -85,11 +85,9 @@ function DishImage(props) {
     var name = dish.name || "";
     var imgSearch = dish.imgSearch || name;
     var cls = props.className || "";
-
     var initSrc = IMG_CACHE.hasOwnProperty(name) && IMG_CACHE[name] ? IMG_CACHE[name] : getFallback(name);
     var s = useState(initSrc); var src = s[0]; var setSrc = s[1];
     var fetchedRef = useRef(false);
-
     useEffect(function () {
         if (!name) return;
         if (IMG_CACHE.hasOwnProperty(name) && IMG_CACHE[name]) { setSrc(IMG_CACHE[name]); return; }
@@ -97,7 +95,6 @@ function DishImage(props) {
         fetchedRef.current = true;
         fetchDishImage(name, imgSearch, function (url) { if (url) setSrc(url); });
     }, [name]);
-
     return (
         <img src={src} alt={name} className={cls} loading="lazy"
             onError={function (e) { e.target.onerror = null; e.target.src = getFallback(name); }} />
@@ -113,20 +110,26 @@ function Icon(props) {
 
 // ─── Popular ingredient suggestions ──────────────────────────────────────────
 var POPULAR = [
-    "Chicken", "Paneer", "Eggs", "Rice", "Pasta", "Tomatoes",
-    "Onions", "Garlic", "Potatoes", "Spinach", "Lentils", "Mushrooms",
-    "Cheese", "Flour", "Milk", "Butter", "Ginger", "Cumin",
+    "Chicken Breast", "Avocado", "Spinach", "Greek Yogurt", "Sweet Potato",
+    "Salmon", "Eggs", "Kale", "Quinoa", "Tomatoes",
+    "Garlic", "Onions", "Lentils", "Mushrooms", "Paneer",
 ];
 
-// ─── Dish card heights ────────────────────────────────────────────────────────
-var HEIGHTS = [320, 400, 360, 440, 300, 380, 420, 340];
+// ─── Card image heights ────────────────────────────────────────────────────────
+var HEIGHTS = [200, 220, 190, 230, 210, 200, 215, 195];
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
+// ─── Skeleton Card ────────────────────────────────────────────────────────────
 function SkeletonCard(props) {
     var h = HEIGHTS[props.index % HEIGHTS.length];
     return (
         <div className="is-dish-card skeleton" style={{ "--ch": h + "px" }}>
-            <div className="is-skel-shimmer" style={{ height: h + "px" }} />
+            <div className="is-skel-img" style={{ height: h + "px" }} />
+            <div className="is-card-body" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div className="is-skel-line" style={{ height: 10, width: "45%", borderRadius: 4 }} />
+                <div className="is-skel-line" style={{ height: 16, width: "80%", borderRadius: 4 }} />
+                <div className="is-skel-line" style={{ height: 12, width: "65%", borderRadius: 4 }} />
+                <div className="is-skel-line" style={{ height: 12, width: "40%", borderRadius: 4 }} />
+            </div>
         </div>
     );
 }
@@ -135,7 +138,6 @@ function SkeletonCard(props) {
 function AddToPlanModal(props) {
     var dish = props.dish;
     var mealPlans = props.mealPlans || {};
-    var onConfirm = props.onConfirm;
     var onClose = props.onClose;
 
     var days = [];
@@ -240,14 +242,23 @@ function AddToPlanModal(props) {
 }
 
 // ─── Dish Card ────────────────────────────────────────────────────────────────
+// Chooses tag pill color based on tag text
+function tagColor(tag) {
+    var t = (tag || "").toLowerCase();
+    if (t.includes("protein") || t.includes("veg") || t.includes("salad") || t.includes("healthy")) return "green";
+    if (t.includes("carb") || t.includes("pasta") || t.includes("rice") || t.includes("grain")) return "blue";
+    if (t.includes("spicy") || t.includes("curry") || t.includes("hot")) return "orange";
+    return "gray";
+}
+
 function DishCard(props) {
     var dish = props.dish;
     var index = props.index;
     var onClick = props.onClick;
     var onAddPlan = props.onAddPlan;
+    var featured = props.featured || false;
     var h = HEIGHTS[index % HEIGHTS.length];
 
-    // Which ingredients the user has vs needs
     var userIngs = props.userIngredients || [];
     var haveCount = dish.ingredients
         ? dish.ingredients.filter(function (ing) {
@@ -259,34 +270,60 @@ function DishCard(props) {
     var totalIngs = dish.ingredients ? dish.ingredients.length : 0;
     var matchPct = totalIngs > 0 ? Math.round((haveCount / totalIngs) * 100) : 0;
 
+    var nutr = dish.nutrition || {};
+
     return (
-        <div className="is-dish-card" style={{ "--ch": h + "px", animationDelay: (index * 0.07) + "s" }}
-            onClick={function () { onClick(dish); }}>
+        <div
+            className={"is-dish-card" + (featured ? " featured" : "")}
+            style={featured ? {} : { "--ch": h + "px", animationDelay: (index * 0.06) + "s" }}
+            onClick={function () { onClick(dish); }}
+        >
+            {/* Image */}
             <div className="is-card-img-wrap">
                 <DishImage dish={dish} className="is-card-img" />
-                <div className="is-card-overlay" />
+                <div className="is-card-top">
+                    <span className={"is-match-badge " + (matchPct >= 80 ? "high" : matchPct >= 50 ? "mid" : "low")}>
+                        {matchPct}% MATCH
+                    </span>
+                    {dish.mealLabel && <span className="is-card-corner-tag">{dish.mealLabel}</span>}
+                </div>
             </div>
 
-            {/* Match badge */}
-            <div className="is-card-top">
-                <span className={"is-match-badge " + (matchPct >= 80 ? "high" : matchPct >= 50 ? "mid" : "low")}>
-                    <Icon n="fa-circle-check" /> {matchPct}% match
-                </span>
-            </div>
+            {/* Body */}
+            <div className="is-card-body">
+                {/* Tag pills */}
+                {dish.tags && dish.tags.length > 0 && (
+                    <div className="is-card-tags">
+                        {dish.tags.slice(0, 2).map(function (tag, i) {
+                            return (
+                                <span key={i} className={"is-tag-pill " + tagColor(tag)}>
+                                    {tag.toUpperCase()}
+                                </span>
+                            );
+                        })}
+                    </div>
+                )}
 
-            {/* + add button */}
-            <button type="button" className="is-card-add-btn"
-                onClick={function (e) { e.stopPropagation(); onAddPlan(dish); }}
-                title="Add to Meal Plan">
-                <Icon n="fa-plus" />
-            </button>
-
-            <div className="is-card-bottom">
                 <span className="is-card-cuisine">{dish.cuisine}</span>
                 <h3 className="is-card-name">{dish.name}</h3>
+                <p className="is-card-desc">{dish.description}</p>
 
-                {/* Missing ingredients */}
-                {dish.missingIngredients && dish.missingIngredients.length > 0 && (
+                {/* Calories + Time for featured */}
+                {featured && nutr.calories && (
+                    <div className="is-card-stats">
+                        <div className="is-stat">
+                            <span className="is-stat-val">{nutr.calories}</span>
+                            <span className="is-stat-label">Calories</span>
+                        </div>
+                        <div className="is-stat">
+                            <span className="is-stat-val">{dish.time}</span>
+                            <span className="is-stat-label">Time</span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Missing ingredients for non-featured */}
+                {!featured && dish.missingIngredients && dish.missingIngredients.length > 0 && (
                     <div className="is-missing-row">
                         <Icon n="fa-cart-shopping" cls="is-missing-icon" />
                         <span>Need: {dish.missingIngredients.slice(0, 3).join(", ")}
@@ -295,18 +332,59 @@ function DishCard(props) {
                     </div>
                 )}
 
-                <div className="is-card-meta">
-                    <span><Icon n="fa-clock" /> {dish.time}</span>
-                    <span><Icon n="fa-signal" /> {dish.difficulty}</span>
-                    <span className={"is-veg-dot " + (dish.isVeg ? "veg" : "nonveg")}>
-                        <Icon n={dish.isVeg ? "fa-leaf" : "fa-drumstick-bite"} />
-                        {dish.isVeg ? "Veg" : "Non-Veg"}
-                    </span>
+                {/* Meta row */}
+                {!featured && (
+                    <div className="is-card-meta">
+                        <span><Icon n="fa-clock" /> {dish.time}</span>
+                        <span><Icon n="fa-signal" /> {dish.difficulty}</span>
+                        <span className={"is-veg-dot " + (dish.isVeg ? "veg" : "nonveg")}>
+                            <Icon n={dish.isVeg ? "fa-leaf" : "fa-drumstick-bite"} />
+                            {dish.isVeg ? " Veg" : " Non-Veg"}
+                        </span>
+                    </div>
+                )}
+
+                <hr className="is-card-divider" />
+
+                <div className="is-card-actions">
+                    <button type="button" className="is-view-recipe-btn"
+                        onClick={function (e) { e.stopPropagation(); onClick(dish); }}>
+                        View Full Recipe <Icon n="fa-arrow-right" />
+                    </button>
+                    <button type="button" className="is-bookmark-btn"
+                        onClick={function (e) { e.stopPropagation(); onAddPlan(dish); }}
+                        title="Add to Meal Plan">
+                        <Icon n="fa-bookmark" />
+                    </button>
                 </div>
 
-                <button type="button" className="is-card-add-row"
-                    onClick={function (e) { e.stopPropagation(); onAddPlan(dish); }}>
-                    <Icon n="fa-calendar-plus" /> Add to Meal Plan
+                {/* Match row for non-featured */}
+                {!featured && (
+                    <div className="is-card-match-row">
+                        <span className="is-match-text">{matchPct}% Match</span>
+                        <span className={"is-veg-dot " + (dish.isVeg ? "veg" : "nonveg")}>
+                            <Icon n={dish.isVeg ? "fa-leaf" : "fa-drumstick-bite"} />
+                            {dish.isVeg ? " Veg" : " Non-Veg"}
+                        </span>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ─── AI Innovation Card ───────────────────────────────────────────────────────
+function AICard() {
+    return (
+        <div className="is-dish-card ai-card" style={{ animationDelay: "0.42s" }}>
+            <div className="is-card-body" style={{ padding: "24px" }}>
+                <div className="is-ai-tag"><Icon n="fa-wand-magic-sparkles" /> AI INNOVATION</div>
+                <h3 className="is-card-name">"The Signature Stew"</h3>
+                <p className="is-card-desc" style={{ color: "rgba(255,255,255,.65)" }}>
+                    NutriAI just created a brand new recipe based on your unique pantry signature. Optimised for gut health and mental clarity.
+                </p>
+                <button className="is-try-btn" type="button">
+                    Try Experimental Recipe <Icon n="fa-arrow-right" />
                 </button>
             </div>
         </div>
@@ -351,7 +429,6 @@ function DishModal(props) {
                     <h2 className="is-modal-title">{dish.name}</h2>
                     <p className="is-modal-desc">{dish.description}</p>
 
-                    {/* Nutrition */}
                     <div className="is-modal-nutr">
                         {[
                             { icon: "fa-fire", label: "Calories", val: nutr.calories },
@@ -369,7 +446,6 @@ function DishModal(props) {
                         })}
                     </div>
 
-                    {/* Ingredients — highlight what user has */}
                     {dish.ingredients && dish.ingredients.length > 0 && (
                         <div className="is-modal-section">
                             <h3 className="is-modal-section-title"><Icon n="fa-list-ul" /> Ingredients</h3>
@@ -393,7 +469,6 @@ function DishModal(props) {
                         </div>
                     )}
 
-                    {/* Steps */}
                     {dish.steps && dish.steps.length > 0 && (
                         <div className="is-modal-section">
                             <h3 className="is-modal-section-title"><Icon n="fa-list-ol" /> How to Cook</h3>
@@ -437,6 +512,9 @@ function Toast(props) {
     );
 }
 
+// ─── Nav ─────────────────────────────────────────────────────────────────────
+var NAV_LINKS = ["Home", "AI Meals", "Ingredients", "Meal Log", "Planner", "Pantry"];
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function IngredientSuggest(props) {
     var addMeal = props.addMeal;
@@ -445,8 +523,6 @@ export default function IngredientSuggest(props) {
     var prefs = {};
     try { prefs = JSON.parse(localStorage.getItem("kitchenBuddyPrefs") || "{}"); } catch (e) { }
 
-    // ── Ingredient + results persisted in localStorage ────────────────────────
-    // So switching pages and coming back keeps everything intact
     var i1 = useState(function () {
         try { return JSON.parse(localStorage.getItem("is_ingredients") || "[]"); } catch (e) { return []; }
     });
@@ -472,20 +548,17 @@ export default function IngredientSuggest(props) {
     });
     var searched = s8[0]; var setSearched = s8[1];
 
-    // Persist ingredients, dishes, searched flag whenever they change
     useEffect(function () {
         try { localStorage.setItem("is_ingredients", JSON.stringify(ingredients)); } catch (e) { }
     }, [ingredients]);
-
     useEffect(function () {
         try { localStorage.setItem("is_dishes", JSON.stringify(dishes)); } catch (e) { }
     }, [dishes]);
-
     useEffect(function () {
         try { localStorage.setItem("is_searched", String(searched)); } catch (e) { }
     }, [searched]);
 
-    // ── Add ingredient ─────────────────────────────────────────────────────────
+    // ── Add / remove ingredient ────────────────────────────────────────────────
     function addIngredient(val) {
         var trimmed = (val || inputVal).trim();
         if (!trimmed) return;
@@ -527,35 +600,30 @@ export default function IngredientSuggest(props) {
         ].filter(Boolean).join(", ") || "General food lover";
 
         var sys = [
-            "You are Kitchen Buddy's AI chef. Respond ONLY as JSON: {\"dishes\": [...]}",
+            "You are NutriAI's chef. Respond ONLY as JSON: {\"dishes\": [...]}",
             "",
-            "CRITICAL RULE — Only suggest dishes that are:",
-            "  - Widely recognised and commonly cooked at home",
-            "  - Popular dishes most people have heard of",
-            "  - NOT obscure, fusion, or restaurant-only dishes",
+            "CRITICAL RULE — Only suggest widely recognised, home-cookable dishes.",
             "",
             "Each dish object must have ALL these fields:",
-            "  id (unique string), name (familiar well-known dish), cuisine,",
+            "  id (unique string), name, cuisine,",
             "  description (2 mouth-watering sentences),",
             "  time (like '25 min'), difficulty (Easy/Medium/Hard), isVeg (boolean),",
-            "  nutrition ({calories,protein,carbs,fat} as strings),",
+            "  nutrition ({calories, protein, carbs, fat} as strings with units),",
             "  ingredients (array of ALL ingredients needed, 6-10 strings),",
-            "  missingIngredients (array of ingredients NOT in the user's provided list),",
+            "  missingIngredients (ingredients NOT in the user's provided list),",
             "  steps (4-6 simple cooking steps),",
-            "  tags (2-3 strings),",
-            "  imgSearch (2-3 word food photography term for Unsplash e.g. 'paneer curry bowl', 'grilled chicken plate')",
+            "  tags (2-3 strings like 'High Protein', 'Low Carb', 'Quick'),",
+            "  imgSearch (2-3 word food photography term for Unsplash)",
             "",
-            "Sort by fewest missing ingredients first (easiest to make now).",
-            "Always mix veg and non-veg dishes."
+            "Sort by fewest missing ingredients first.",
+            "Mix veg and non-veg dishes. Make descriptions sound delicious."
         ].join("\n");
 
-        var usr = "User has these ingredients: " + ingredients.join(", ") + "\n"
-            + "User profile: " + ctx + "\n\n"
-            + "Suggest 12 dishes they can make. For each dish:\n"
-            + "- List ALL ingredients needed (not just what user has)\n"
-            + "- List missingIngredients = ingredients NOT in [" + ingredients.join(", ") + "]\n"
-            + "- Sort by fewest missing ingredients first (easiest to make now)\n"
-            + "Return {\"dishes\":[12 dish objects]}";
+        var usr = "User has: " + ingredients.join(", ") + "\n"
+            + "Profile: " + ctx + "\n\n"
+            + "Suggest 12 dishes. List ALL ingredients needed. "
+            + "missingIngredients = those NOT in [" + ingredients.join(", ") + "]. "
+            + "Sort by fewest missing. Return {\"dishes\":[12 objects]}";
 
         askGroq(sys, usr)
             .then(function (r) {
@@ -603,95 +671,72 @@ export default function IngredientSuggest(props) {
 
     return (
         <div className="is-root">
-            <div className="is-bg-grid" />
-            <div className="is-blob is-blob1" />
-            <div className="is-blob is-blob2" />
 
-            {/* ── Header ──────────────────────────────────────────────────────── */}
+            {/* ── Hero ────────────────────────────────────────────────────────── */}
             <div className="is-hero">
-                <div className="is-hero-inner">
-                    <div className="is-hero-text">
-                        <h1 className="is-hero-title">
-                            What's in your <span className="is-hero-accent">kitchen?</span>
-                        </h1>
-                        <p className="is-hero-sub">
-                            Type the ingredients you have — AI suggests dishes you can make right now
-                        </p>
-                    </div>
+                <h1 className="is-hero-title">What's in your fridge?</h1>
+                <p className="is-hero-sub">
+                    Tell NutriAI what ingredients you have, and we'll craft a perfect, nutritionally-balanced recipe just for you.
+                </p>
+            </div>
 
-                    {/* ── Ingredient input box ─────────────────────────────────────── */}
-                    <div className="is-input-card">
-                        <div className="is-input-label">
-                            <Icon n="fa-seedling" cls="is-input-label-icon" />
-                            Your ingredients
-                        </div>
+            {/* ── Input Card ──────────────────────────────────────────────────── */}
+            <div className="is-input-card">
+                {/* Search row */}
+                <div className="is-search-row" onClick={function () { inputRef.current && inputRef.current.focus(); }}>
+                    <Icon n="fa-magnifying-glass" cls="is-search-icon" />
 
-                        <div className="is-tag-input-wrap" onClick={function () { inputRef.current && inputRef.current.focus(); }}>
-                            {/* Ingredient tags */}
-                            {ingredients.map(function (ing) {
-                                return (
-                                    <span key={ing} className="is-ing-tag">
-                                        {ing}
-                                        <button type="button" className="is-ing-remove"
-                                            onClick={function (e) { e.stopPropagation(); removeIngredient(ing); }}>
-                                            <Icon n="fa-xmark" />
-                                        </button>
-                                    </span>
-                                );
-                            })}
-
-                            {/* Text input */}
-                            <input
-                                ref={inputRef}
-                                className="is-tag-input"
-                                placeholder={ingredients.length === 0 ? "Type ingredient and press Enter... e.g. Chicken, Rice, Tomatoes" : "Add more..."}
-                                value={inputVal}
-                                onChange={function (e) { setInputVal(e.target.value); }}
-                                onKeyDown={handleKeyDown}
-                            />
-                        </div>
-
-                        {/* Popular suggestions */}
-                        <div className="is-popular-wrap">
-                            <span className="is-popular-label">Popular:</span>
-                            {POPULAR.filter(function (p) { return ingredients.indexOf(p) === -1; }).slice(0, 10).map(function (p) {
-                                return (
-                                    <button key={p} type="button" className="is-popular-chip"
-                                        onClick={function () { addIngredient(p); }}>
-                                        <Icon n="fa-plus" /> {p}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="is-input-actions">
-                            {ingredients.length > 0 && (
-                                <button type="button" className="is-clear-btn"
-                                    onClick={function () { setIngredients([]); setDishes([]); setSearched(false); }}>
-                                    <Icon n="fa-trash" /> Clear all
+                    {/* Ingredient tags inline */}
+                    {ingredients.map(function (ing) {
+                        return (
+                            <span key={ing} className="is-quick-chip selected">
+                                {ing}
+                                <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "inherit" }}
+                                    onClick={function (e) { e.stopPropagation(); removeIngredient(ing); }}>
+                                    <Icon n="fa-xmark" />
                                 </button>
-                            )}
-                            <button
-                                type="button"
-                                className={"is-search-btn " + (ingredients.length === 0 ? "disabled" : "")}
-                                onClick={getSuggestions}
-                                disabled={ingredients.length === 0 || loading}
-                            >
-                                {loading
-                                    ? <><Icon n="fa-circle-notch fa-spin" /> Finding dishes...</>
-                                    : <><Icon n="fa-wand-magic-sparkles" /> Find Dishes ({ingredients.length} ingredients)</>
-                                }
-                            </button>
-                        </div>
-                    </div>
+                            </span>
+                        );
+                    })}
 
-                    {/* Selected count */}
-                    {ingredients.length > 0 && !searched && (
-                        <div className="is-ready-hint">
-                            <Icon n="fa-circle-info" />
-                            {ingredients.length} ingredient{ingredients.length > 1 ? "s" : ""} added — hit Find Dishes!
-                        </div>
+                    <input
+                        ref={inputRef}
+                        className="is-tag-input"
+                        placeholder={ingredients.length === 0 ? "Enter ingredients you have (e.g., Salmon, Kale, Quinoa...)" : "Add more..."}
+                        value={inputVal}
+                        onChange={function (e) { setInputVal(e.target.value); }}
+                        onKeyDown={handleKeyDown}
+                    />
+
+                    <button
+                        type="button"
+                        className="is-generate-btn"
+                        onClick={getSuggestions}
+                        disabled={ingredients.length === 0 || loading}
+                    >
+                        {loading
+                            ? <><Icon n="fa-circle-notch fa-spin" /> Generating...</>
+                            : <><Icon n="fa-wand-magic-sparkles" /> Generate</>
+                        }
+                    </button>
+                </div>
+
+                {/* Quick add + clear */}
+                <div className="is-tag-row">
+                    <span className="is-quick-label">Quick Add:</span>
+                    {POPULAR.filter(function (p) { return ingredients.indexOf(p) === -1; }).slice(0, 8).map(function (p) {
+                        return (
+                            <button key={p} type="button" className="is-quick-chip"
+                                onClick={function () { addIngredient(p); }}>
+                                {p} +
+                            </button>
+                        );
+                    })}
+                    {ingredients.length > 0 && (
+                        <button type="button" className="is-clear-link"
+                            onClick={function () { setIngredients([]); setDishes([]); setSearched(false); }}>
+                            <Icon n="fa-rotate-left" /> Clear all
+                        </button>
                     )}
                 </div>
             </div>
@@ -699,29 +744,25 @@ export default function IngredientSuggest(props) {
             {/* ── Results ─────────────────────────────────────────────────────── */}
             {(searched || loading) && (
                 <div className="is-results-wrap">
+                    <div className="is-section-header">
+                        <h2 className="is-section-title">Recommended AI Meals</h2>
+                        <button className="is-filter-btn" type="button">
+                            <Icon n="fa-sliders" /> Dietary Filters
+                        </button>
+                    </div>
 
-                    {/* Filter bar */}
-                    {!loading && dishes.length > 0 && (
-                        <div className="is-filter-bar">
-                            <div className="is-filter-inner">
-                                <div className="is-result-count">
-                                    <Icon n="fa-wand-magic-sparkles" />
-                                    {filtered.length} dishes found for {ingredients.length} ingredients
-                                </div>
-                                <div className="is-filter-tabs">
-                                    {FILTERS.map(function (opt) {
-                                        return (
-                                            <button key={opt.key} type="button"
-                                                className={"is-filter-tab " + (filter === opt.key ? "active" : "")}
-                                                onClick={function () { setFilter(opt.key); }}>
-                                                <Icon n={opt.icon} /> {opt.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    {/* Filter tabs */}
+                    <div className="is-filter-tabs">
+                        {FILTERS.map(function (opt) {
+                            return (
+                                <button key={opt.key} type="button"
+                                    className={"is-filter-tab " + (filter === opt.key ? "active" : "")}
+                                    onClick={function () { setFilter(opt.key); }}>
+                                    <Icon n={opt.icon} /> {opt.label}
+                                </button>
+                            );
+                        })}
+                    </div>
 
                     {/* Error */}
                     {errMsg && !loading && (
@@ -735,62 +776,82 @@ export default function IngredientSuggest(props) {
                     )}
 
                     {/* Grid */}
-                    <div className="is-grid-wrap">
-                        <div className="is-masonry">
-                            {loading
-                                ? Array.from({ length: 8 }).map(function (_, i) { return <SkeletonCard key={i} index={i} />; })
-                                : filtered.length === 0 && !errMsg
-                                    ? (
-                                        <div className="is-empty">
-                                            <Icon n="fa-face-sad-tear" cls="is-empty-icon" />
-                                            <p>No {filter !== "all" ? filter : ""} dishes found.</p>
-                                            <button type="button" onClick={function () { setFilter("all"); }}>Show all dishes</button>
-                                        </div>
-                                    )
-                                    : filtered.map(function (dish, i) {
-                                        return (
-                                            <DishCard
-                                                key={dish.id || i}
-                                                dish={dish}
-                                                index={i}
+                    <div className="is-masonry">
+                        {loading ? (
+                            Array.from({ length: 9 }).map(function (_, i) {
+                                return <SkeletonCard key={i} index={i} />;
+                            })
+                        ) : filtered.length === 0 && !errMsg ? (
+                            <div className="is-empty">
+                                <Icon n="fa-face-sad-tear" cls="is-empty-icon" />
+                                <p>No {filter !== "all" ? filter : ""} dishes found.</p>
+                                <button type="button" onClick={function () { setFilter("all"); }}>Show all dishes</button>
+                            </div>
+                        ) : (
+                            filtered.map(function (dish, i) {
+                                // First card is featured (wide)
+                                if (i === 0) {
+                                    return (
+                                        <DishCard key={dish.id || i} dish={dish} index={i}
+                                            featured={true}
+                                            onClick={setSelected}
+                                            onAddPlan={setPlanDish}
+                                            userIngredients={ingredients} />
+                                    );
+                                }
+                                // AI innovation card after index 3
+                                if (i === 3) {
+                                    return (
+                                        <span key="ai-card">
+                                            <DishCard dish={dish} index={i}
                                                 onClick={setSelected}
                                                 onAddPlan={setPlanDish}
-                                                userIngredients={ingredients}
-                                            />
-                                        );
-                                    })
-                            }
-                        </div>
+                                                userIngredients={ingredients} />
+                                            <AICard />
+                                        </span>
+                                    );
+                                }
+                                return (
+                                    <DishCard key={dish.id || i} dish={dish} index={i}
+                                        onClick={setSelected}
+                                        onAddPlan={setPlanDish}
+                                        userIngredients={ingredients} />
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             )}
 
-            {/* Empty state — no search yet */}
+            {/* ── Empty state (no search yet) ──────────────────────────────────── */}
             {!searched && !loading && (
                 <div className="is-empty-state">
                     <div className="is-empty-state-icon"><Icon n="fa-bowl-food" /></div>
                     <h3>Start by adding ingredients</h3>
-                    <p>Type what you have in your kitchen and we'll suggest dishes you can make right now</p>
+                    <p>Type what you have in your fridge and we'll suggest nutritionally-balanced meals you can make right now</p>
                 </div>
             )}
 
-            {/* Modals */}
+            {/* ── Modals ─────────────────────────────────────────────────────── */}
             {selected && (
                 <DishModal dish={selected}
                     onClose={function () { setSelected(null); }}
                     onAddPlan={function (d) { setSelected(null); setPlanDish(d); }}
-                    userIngredients={ingredients}
-                />
+                    userIngredients={ingredients} />
             )}
 
             {planDish && (
                 <AddToPlanModal dish={planDish} mealPlans={mealPlans}
                     onConfirm={handleConfirmAdd}
-                    onClose={function () { setPlanDish(null); }}
-                />
+                    onClose={function () { setPlanDish(null); }} />
             )}
 
             {toast && <Toast message={toast} onHide={function () { setToast(""); }} />}
+
+            {/* Mobile FAB */}
+            <button className="is-fab" type="button" onClick={getSuggestions} disabled={ingredients.length === 0 || loading}>
+                <Icon n="fa-plus" /> Plan New Meal
+            </button>
         </div>
     );
 }
